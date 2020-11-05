@@ -38,7 +38,7 @@ func TestResponseUnmarshalGzip(t *testing.T) {
 	response := Response{
 		Response: http.Response{
 			StatusCode: 200,
-			Body:       gzipString(`{"foo":"bar"}`),
+			Body:       ioutil.NopCloser(gzipString(`{"foo":"bar"}`)),
 			Header:     responseHeader,
 		},
 	}
@@ -53,7 +53,60 @@ func TestResponseUnmarshalGzip(t *testing.T) {
 	}
 }
 
-func gzipString(data string) io.ReadCloser {
+type ReadCloseVerifier struct {
+	io.Reader
+	closed bool
+}
+
+func (v *ReadCloseVerifier) Close() error {
+	v.closed = true
+	return nil
+}
+
+func TestResponseUnmarshalClosesReader(t *testing.T) {
+	stub := &ReadCloseVerifier{
+		Reader: bytes.NewBufferString(`{"foo":"bar"}`),
+		closed: false,
+	}
+
+	response := Response{
+		Response: http.Response{
+			StatusCode: 200,
+			Body:       stub,
+			Header:     make(http.Header),
+		},
+	}
+
+	err := response.Unmarshal(&struct{}{})
+
+	assert.NoError(t, err)
+	assert.True(t, stub.closed)
+}
+
+func TestResponseUnmarshalClosesInnerReader(t *testing.T) {
+	stub := &ReadCloseVerifier{
+		Reader: gzipString(`{"foo":"bar"}`),
+		closed: false,
+	}
+
+	responseHeader := make(http.Header)
+	responseHeader.Set(headers.ContentEncoding, "gzip")
+
+	response := Response{
+		Response: http.Response{
+			StatusCode: 200,
+			Body:       stub,
+			Header:     responseHeader,
+		},
+	}
+
+	err := response.Unmarshal(&struct{}{})
+
+	assert.NoError(t, err)
+	assert.True(t, stub.closed)
+}
+
+func gzipString(data string) io.Reader {
 	buf := new(bytes.Buffer)
 
 	w := gzip.NewWriter(buf)
@@ -63,5 +116,5 @@ func gzipString(data string) io.ReadCloser {
 		panic(err)
 	}
 
-	return ioutil.NopCloser(buf)
+	return buf
 }

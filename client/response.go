@@ -17,6 +17,8 @@ func (r *Response) Unmarshal(v interface{}) (err error) {
 
 	switch r.Header.Get(headers.ContentEncoding) {
 	case "gzip":
+		defer reader.Close()
+
 		if reader, err = gzip.NewReader(reader); err != nil {
 			return
 		}
