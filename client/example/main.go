@@ -25,7 +25,7 @@ func main() {
 
 	client := rest.NewClient(
 		rest.WithBaseURL("https://api.sandbox.hierarchy.enlight.skf.com/"),
-		rest.WithTokenProvider(auth.IdentityToken(identityToken)),
+		rest.WithTokenProvider(auth.RawToken(identityToken)),
 	)
 
 	request := rest.Get("nodes/{id}").

@@ -84,9 +84,9 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 	}
 
 	if c.TokenProvider != nil {
-		token, err := c.TokenProvider.GetIdentityToken(ctx)
+		token, err := c.TokenProvider.GetRawToken(ctx)
 		if err != nil {
-			return nil, fmt.Errorf("unable to get identity token: %w", err)
+			return nil, fmt.Errorf("unable to get token: %w", err)
 		}
 
 		req.header.Set(headers.Authorization, token.String())

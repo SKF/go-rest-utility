@@ -7,17 +7,17 @@ import (
 	"github.com/SKF/go-utility/v2/auth/secretsmanagerauth"
 )
 
-type IdentityToken string
+type RawToken string
 
 type TokenProvider interface {
-	GetIdentityToken(ctx context.Context) (IdentityToken, error)
+	GetRawToken(ctx context.Context) (RawToken, error)
 }
 
-func (token IdentityToken) GetIdentityToken(ctx context.Context) (IdentityToken, error) {
+func (token RawToken) GetRawToken(ctx context.Context) (RawToken, error) {
 	return token, nil
 }
 
-func (token IdentityToken) String() string {
+func (token RawToken) String() string {
 	return string(token)
 }
 
@@ -26,7 +26,7 @@ type SecretsManagerTokenProvider struct {
 	Config     secretsmanagerauth.Config
 }
 
-func (provider *SecretsManagerTokenProvider) GetIdentityToken(ctx context.Context) (IdentityToken, error) {
+func (provider *SecretsManagerTokenProvider) GetIdentityToken(ctx context.Context) (RawToken, error) {
 	if !provider.configured {
 		secretsmanagerauth.Configure(provider.Config)
 		provider.configured = true
@@ -36,5 +36,5 @@ func (provider *SecretsManagerTokenProvider) GetIdentityToken(ctx context.Contex
 		return "", fmt.Errorf("unable to sign-in as service user '%s': %w", provider.Config.SecretKey, err)
 	}
 
-	return IdentityToken(secretsmanagerauth.GetTokens().IdentityToken), nil
+	return RawToken(secretsmanagerauth.GetTokens().IdentityToken), nil
 }
