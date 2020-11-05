@@ -113,7 +113,10 @@ func (r *Request) WithJSONPayload(payload interface{}) *Request {
 	return r
 }
 
-func (r *Request) toURL(baseURL *url.URL) (*url.URL, error) {
+// ExpandURL combines the baseURL with the expanded URI template to form the
+// final URL to be used for this Request.
+// If no baseURL is provided the returned URL is just the expanded URI template
+func (r *Request) ExpandURL(baseURL *url.URL) (*url.URL, error) {
 	template, err := uritemplates.Parse(r.uriTemplate)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse uri template: %w", err)
