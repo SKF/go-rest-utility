@@ -53,7 +53,7 @@ func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 
 	httpResponse, err := c.client.Do(httpRequest)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to perform http request: %w", err)
 	}
 
 	return c.prepareResponse(httpResponse)
@@ -62,12 +62,12 @@ func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Request, error) {
 	url, err := req.ExpandURL(c.BaseURL)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid request URL: %w", err)
 	}
 
 	httpRequest, err := http.NewRequestWithContext(ctx, req.method, url.String(), req.body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to create http request: %w", err)
 	}
 
 	if req.header.Get(headers.UserAgent) == "" {
@@ -77,7 +77,7 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 	if c.TokenProvider != nil {
 		token, err := c.TokenProvider.GetIdentityToken(ctx)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("unable to get identity token: %w", err)
 		}
 
 		req.header.Set(headers.Authorization, token.String())
@@ -96,7 +96,7 @@ func (c *Client) prepareResponse(resp *http.Response) (*Response, error) {
 
 		errorBody, readErr := ioutil.ReadAll(resp.Body)
 		if readErr != nil {
-			return nil, fmt.Errorf("failed to get: %s, got statuscode: %d", resp.Request.URL, resp.StatusCode)
+			return nil, fmt.Errorf("failed to get: %s, got status code: %d", resp.Request.URL, resp.StatusCode)
 		}
 
 		if resp.StatusCode == http.StatusUnauthorized {
@@ -107,7 +107,7 @@ func (c *Client) prepareResponse(resp *http.Response) (*Response, error) {
 			return nil, fmt.Errorf("got 404 for %s: %s: %w", resp.Request.URL, errorBody, ErrNotFound)
 		}
 
-		return nil, fmt.Errorf("failed to get: %s, got statuscode: %d, body: %s", resp.Request.URL, resp.StatusCode, errorBody)
+		return nil, fmt.Errorf("failed to get: %s, got status code: %d, body: %s", resp.Request.URL, resp.StatusCode, errorBody)
 	}
 
 	return &Response{*resp}, nil
