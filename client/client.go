@@ -59,6 +59,15 @@ func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 	return c.prepareResponse(httpResponse)
 }
 
+func (c *Client) DoAndUnmarshal(ctx context.Context, r *Request, v interface{}) error {
+	response, err := c.Do(ctx, r)
+	if err != nil {
+		return err
+	}
+
+	return response.Unmarshal(v)
+}
+
 func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Request, error) {
 	url, err := req.ExpandURL(c.BaseURL)
 	if err != nil {
