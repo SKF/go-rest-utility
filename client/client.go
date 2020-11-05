@@ -13,6 +13,11 @@ import (
 	"github.com/SKF/go-rest-utility/client/auth"
 )
 
+const (
+	DefaultUserAgent      string = "go-rest-utility/v1"
+	DefaultAcceptEncoding string = "gzip"
+)
+
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
@@ -66,7 +71,7 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 	}
 
 	if req.header.Get(headers.UserAgent) == "" {
-		req.header.Set(headers.UserAgent, "go-rest-utility/v1")
+		req.header.Set(headers.UserAgent, DefaultUserAgent)
 	}
 
 	if c.TokenProvider != nil {
@@ -78,7 +83,7 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 		req.header.Set(headers.Authorization, token.String())
 	}
 
-	req.header.Set(headers.AcceptEncoding, "gzip")
+	req.header.Set(headers.AcceptEncoding, DefaultAcceptEncoding)
 
 	httpRequest.Header = req.header
 
