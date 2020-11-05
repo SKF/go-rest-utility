@@ -25,31 +25,35 @@ func TestClientGet(t *testing.T) {
 	if assert.NoError(t, err) {
 		assert.Equal(t, 200, response.StatusCode)
 
-		incomingRequest := IncomingRequest{}
+		echo := RequestEcho{}
 
-		err := response.Unmarshal(&incomingRequest)
+		err := response.Unmarshal(&echo)
 		if assert.NoError(t, err) {
-			assert.Equal(t, "/endpoint", incomingRequest.URL)
-			assert.Equal(t, DefaultUserAgent, incomingRequest.Header.Get(headers.UserAgent))
-			assert.Equal(t, DefaultAcceptEncoding, incomingRequest.Header.Get(headers.AcceptEncoding))
+			assert.Equal(t, "/endpoint", echo.URL)
+			assert.Equal(t, http.MethodGet, echo.Method)
+			assert.Equal(t, DefaultUserAgent, echo.Header.Get(headers.UserAgent))
+			assert.Equal(t, DefaultAcceptEncoding, echo.Header.Get(headers.AcceptEncoding))
 		}
 	}
 }
 
-type IncomingRequest struct {
+type RequestEcho struct {
 	URL    string
+	Method string
 	Header http.Header
 }
 
+// newEchoHTTPServer returns a new server which echos back the request as response.
 func newEchoHTTPServer() *httptest.Server {
 	handler := http.NewServeMux()
 	handler.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		incomingRequest := IncomingRequest{
+		echo := RequestEcho{
 			URL:    r.URL.String(),
+			Method: r.Method,
 			Header: r.Header,
 		}
 
-		if err := json.NewEncoder(rw).Encode(incomingRequest); err != nil {
+		if err := json.NewEncoder(rw).Encode(echo); err != nil {
 			rw.WriteHeader(500)
 			fmt.Fprintf(rw, `{"error": "%s"}`, err)
 		}
