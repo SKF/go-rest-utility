@@ -15,7 +15,7 @@ import (
 func TestResponseUnmarshalSimple(t *testing.T) {
 	response := Response{
 		Response: http.Response{
-			StatusCode: 200,
+			StatusCode: http.StatusOK,
 			Body:       ioutil.NopCloser(bytes.NewBufferString(`{"foo":"bar"}`)),
 			Header:     make(http.Header),
 		},
@@ -36,7 +36,7 @@ func TestResponseUnmarshalGzip(t *testing.T) {
 
 	response := Response{
 		Response: http.Response{
-			StatusCode: 200,
+			StatusCode: http.StatusOK,
 			Body:       ioutil.NopCloser(gzipString(`{"foo":"bar"}`)),
 			Header:     responseHeader,
 		},
@@ -69,7 +69,7 @@ func TestResponseUnmarshalClosesReader(t *testing.T) {
 
 	response := Response{
 		Response: http.Response{
-			StatusCode: 200,
+			StatusCode: http.StatusOK,
 			Body:       stub,
 			Header:     make(http.Header),
 		},
@@ -92,7 +92,7 @@ func TestResponseUnmarshalClosesInnerReader(t *testing.T) {
 
 	response := Response{
 		Response: http.Response{
-			StatusCode: 200,
+			StatusCode: http.StatusOK,
 			Body:       stub,
 			Header:     responseHeader,
 		},

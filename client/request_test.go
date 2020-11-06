@@ -21,8 +21,7 @@ func TestExpandURL(t *testing.T) {
 
 func TestExpandURLWithBadTemplate(t *testing.T) {
 	baseURL := urlMustParse("https://example.com/")
-	request := Get("endpoint/{id").
-		Assign("id", 1)
+	request := Get("endpoint/{id").Assign("id", 1)
 
 	_, err := request.ExpandURL(baseURL)
 

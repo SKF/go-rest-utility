@@ -12,6 +12,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type RequestEcho struct {
+	URL    string
+	Method string
+	Header http.Header
+}
+
 func TestClientGet(t *testing.T) {
 	srv := newEchoHTTPServer()
 	defer srv.Close()
@@ -23,7 +29,7 @@ func TestClientGet(t *testing.T) {
 	response, err := client.Do(context.Background(), request)
 
 	require.NoError(t, err)
-	require.Equal(t, 200, response.StatusCode)
+	require.Equal(t, http.StatusOK, response.StatusCode)
 
 	echo := RequestEcho{}
 
@@ -33,12 +39,6 @@ func TestClientGet(t *testing.T) {
 	require.Equal(t, http.MethodGet, echo.Method)
 	require.Equal(t, DefaultUserAgent, echo.Header.Get(headers.UserAgent))
 	require.Equal(t, DefaultAcceptEncoding, echo.Header.Get(headers.AcceptEncoding))
-}
-
-type RequestEcho struct {
-	URL    string
-	Method string
-	Header http.Header
 }
 
 // newEchoHTTPServer returns a new server which echos back the request as response.
@@ -52,7 +52,7 @@ func newEchoHTTPServer() *httptest.Server {
 		}
 
 		if err := json.NewEncoder(rw).Encode(echo); err != nil {
-			rw.WriteHeader(500)
+			rw.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(rw, `{"error": "%s"}`, err)
 		}
 	})
