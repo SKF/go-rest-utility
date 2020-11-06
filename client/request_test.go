@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestExpandURL(t *testing.T) {
@@ -15,9 +15,8 @@ func TestExpandURL(t *testing.T) {
 
 	url, err := request.ExpandURL(baseURL)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, "https://example.com/endpoint/1?limit=treefiddy", url.String())
-	}
+	require.NoError(t, err)
+	require.Equal(t, "https://example.com/endpoint/1?limit=treefiddy", url.String())
 }
 
 func TestExpandURLWithBadTemplate(t *testing.T) {
@@ -27,7 +26,7 @@ func TestExpandURLWithBadTemplate(t *testing.T) {
 
 	_, err := request.ExpandURL(baseURL)
 
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestExpandURLWithNoVariableAssignments(t *testing.T) {
@@ -36,7 +35,7 @@ func TestExpandURLWithNoVariableAssignments(t *testing.T) {
 
 	_, err := request.ExpandURL(baseURL)
 
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestExpandURLWithNoBaseURL(t *testing.T) {
@@ -44,9 +43,8 @@ func TestExpandURLWithNoBaseURL(t *testing.T) {
 
 	url, err := request.ExpandURL(nil)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, "https://example.com/endpoint/1", url.String())
-	}
+	require.NoError(t, err)
+	require.Equal(t, "https://example.com/endpoint/1", url.String())
 }
 
 func urlMustParse(rawurl string) *url.URL {

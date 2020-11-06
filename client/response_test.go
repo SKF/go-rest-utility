@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/go-http-utils/headers"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestResponseUnmarshalSimple(t *testing.T) {
@@ -26,9 +26,8 @@ func TestResponseUnmarshalSimple(t *testing.T) {
 	}{}
 	err := response.Unmarshal(&value)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, "bar", value.Foo)
-	}
+	require.NoError(t, err)
+	require.Equal(t, "bar", value.Foo)
 }
 
 func TestResponseUnmarshalGzip(t *testing.T) {
@@ -48,9 +47,8 @@ func TestResponseUnmarshalGzip(t *testing.T) {
 	}{}
 	err := response.Unmarshal(&value)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, "bar", value.Foo)
-	}
+	require.NoError(t, err)
+	require.Equal(t, "bar", value.Foo)
 }
 
 type ReadCloseVerifier struct {
@@ -79,8 +77,8 @@ func TestResponseUnmarshalClosesReader(t *testing.T) {
 
 	err := response.Unmarshal(&struct{}{})
 
-	assert.NoError(t, err)
-	assert.True(t, stub.closed)
+	require.NoError(t, err)
+	require.True(t, stub.closed)
 }
 
 func TestResponseUnmarshalClosesInnerReader(t *testing.T) {
@@ -102,8 +100,8 @@ func TestResponseUnmarshalClosesInnerReader(t *testing.T) {
 
 	err := response.Unmarshal(&struct{}{})
 
-	assert.NoError(t, err)
-	assert.True(t, stub.closed)
+	require.NoError(t, err)
+	require.True(t, stub.closed)
 }
 
 func gzipString(data string) io.Reader {

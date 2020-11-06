@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/go-http-utils/headers"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestClientGet(t *testing.T) {
@@ -22,19 +22,17 @@ func TestClientGet(t *testing.T) {
 
 	response, err := client.Do(context.Background(), request)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, 200, response.StatusCode)
+	require.NoError(t, err)
+	require.Equal(t, 200, response.StatusCode)
 
-		echo := RequestEcho{}
+	echo := RequestEcho{}
 
-		err := response.Unmarshal(&echo)
-		if assert.NoError(t, err) {
-			assert.Equal(t, "/endpoint", echo.URL)
-			assert.Equal(t, http.MethodGet, echo.Method)
-			assert.Equal(t, DefaultUserAgent, echo.Header.Get(headers.UserAgent))
-			assert.Equal(t, DefaultAcceptEncoding, echo.Header.Get(headers.AcceptEncoding))
-		}
-	}
+	err = response.Unmarshal(&echo)
+	require.NoError(t, err)
+	require.Equal(t, "/endpoint", echo.URL)
+	require.Equal(t, http.MethodGet, echo.Method)
+	require.Equal(t, DefaultUserAgent, echo.Header.Get(headers.UserAgent))
+	require.Equal(t, DefaultAcceptEncoding, echo.Header.Get(headers.AcceptEncoding))
 }
 
 type RequestEcho struct {
