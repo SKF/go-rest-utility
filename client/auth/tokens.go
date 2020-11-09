@@ -26,6 +26,7 @@ type SecretsManagerTokenProvider struct {
 	Config     secretsmanagerauth.Config
 }
 
+// Ensure SecretsManagerTokenProvider implements TokenProvider interface
 var _ TokenProvider = &SecretsManagerTokenProvider{}
 
 func (provider *SecretsManagerTokenProvider) GetRawToken(ctx context.Context) (RawToken, error) {
