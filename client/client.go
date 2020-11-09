@@ -105,7 +105,7 @@ func (c *Client) prepareResponse(resp *http.Response) (*Response, error) {
 
 		errorBody, readErr := ioutil.ReadAll(resp.Body)
 		if readErr != nil {
-			return nil, fmt.Errorf("failed to get: %s, got status code: %d", resp.Request.URL, resp.StatusCode)
+			return nil, fmt.Errorf("got %d for %s: [no body]", resp.StatusCode, resp.Request.URL)
 		}
 
 		if resp.StatusCode == http.StatusUnauthorized {
@@ -116,7 +116,7 @@ func (c *Client) prepareResponse(resp *http.Response) (*Response, error) {
 			return nil, fmt.Errorf("got 404 for %s: %s: %w", resp.Request.URL, errorBody, ErrNotFound)
 		}
 
-		return nil, fmt.Errorf("failed to get: %s, got status code: %d, body: %s", resp.Request.URL, resp.StatusCode, errorBody)
+		return nil, fmt.Errorf("got %d for %s: %s", resp.StatusCode, resp.Request.URL, errorBody)
 	}
 
 	return &Response{*resp}, nil
