@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 
 	"github.com/go-http-utils/headers"
 	"github.com/jtacoma/uritemplates"
@@ -69,6 +70,33 @@ func Patch(uriTemplate string) *Request {
 }
 
 func (r *Request) Assign(variable string, value interface{}) *Request {
+	rv := reflect.ValueOf(value)
+
+	// uritemplate library can only expand slices/maps of interfaces
+	switch rv.Kind() {
+	case reflect.Map:
+		if rv.Type().Key().Kind() != reflect.String {
+			break
+		}
+
+		interfaceMap := make(map[string]interface{})
+
+		iter := rv.MapRange()
+		for iter.Next() {
+			key, _ := iter.Key().Interface().(string)
+			interfaceMap[key] = iter.Value().Interface()
+		}
+
+		value = interfaceMap
+	case reflect.Array, reflect.Slice:
+		interfaceSlice := make([]interface{}, rv.Len())
+		for i := 0; i < rv.Len(); i++ {
+			interfaceSlice[i] = rv.Index(i).Interface()
+		}
+
+		value = interfaceSlice
+	}
+
 	r.uriVariables[variable] = value
 
 	return r
