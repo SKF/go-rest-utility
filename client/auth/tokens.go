@@ -26,7 +26,9 @@ type SecretsManagerTokenProvider struct {
 	Config     secretsmanagerauth.Config
 }
 
-func (provider *SecretsManagerTokenProvider) GetIdentityToken(ctx context.Context) (RawToken, error) {
+var _ TokenProvider = &SecretsManagerTokenProvider{}
+
+func (provider *SecretsManagerTokenProvider) GetRawToken(ctx context.Context) (RawToken, error) {
 	if !provider.configured {
 		secretsmanagerauth.Configure(provider.Config)
 		provider.configured = true
