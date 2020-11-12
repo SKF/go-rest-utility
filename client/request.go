@@ -131,7 +131,7 @@ func (jp *jsonPayload) Read(p []byte) (n int, err error) {
 		}
 	}
 
-	return jp.Read(p)
+	return jp.buffer.Read(p)
 }
 
 func (r *Request) WithJSONPayload(payload interface{}) *Request {
