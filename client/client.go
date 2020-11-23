@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/go-http-utils/headers"
-	"go.opencensus.io/plugin/ochttp"
 
 	"github.com/SKF/go-rest-utility/client/auth"
 )
@@ -26,16 +25,15 @@ type Client struct {
 	BaseURL       *url.URL
 	TokenProvider auth.TokenProvider
 
-	client Doer
+	client *http.Client
 }
 
+// NewClient will create a new REST Client.
 func NewClient(opts ...Option) *Client {
 	client := &Client{
 		BaseURL:       nil,
 		TokenProvider: nil,
-		client: &http.Client{
-			Transport: &ochttp.Transport{},
-		},
+		client:        new(http.Client),
 	}
 
 	for _, opt := range opts {
