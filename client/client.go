@@ -17,10 +17,6 @@ const (
 	DefaultAcceptEncoding string = "gzip"
 )
 
-type Doer interface {
-	Do(*http.Request) (*http.Response, error)
-}
-
 type Client struct {
 	BaseURL       *url.URL
 	TokenProvider auth.TokenProvider
