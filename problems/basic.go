@@ -28,7 +28,7 @@ type BasicProblem struct {
 	// Detail, a human-readable explanation specific to this occurrence of the problem.
 	Detail string `json:"detail,omitempty"`
 
-	// Instance, a URI reference that identifies the specific occurrence of the problem.
+	// Instance, a URI reference that identifies the specific resource on which the problem occurred.
 	Instance string `json:"instance,omitempty" format:"url"`
 
 	// CorrelationID, an unique identifier for tracing this issue in server logs.

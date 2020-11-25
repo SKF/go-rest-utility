@@ -27,9 +27,7 @@ func (problem ValidationProblem) TrimEmpty() error {
 	return problem
 }
 
-func (problem *ValidationProblem) Errors() []error {
-	var errors []error = nil //nolint:prealloc // expected behaviour is to return nil when no reasons is present
-
+func (problem *ValidationProblem) Errors() (errors []error) {
 	for _, reason := range problem.Reasons {
 		errors = append(errors, reason.Cause)
 	}
