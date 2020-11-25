@@ -8,4 +8,5 @@ require (
 	github.com/jtacoma/uritemplates v1.0.0
 	github.com/stretchr/testify v1.6.1
 	go.opencensus.io v0.22.5
+	gopkg.in/DataDog/dd-trace-go.v1 v1.27.1
 )
