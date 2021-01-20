@@ -41,7 +41,7 @@ func (problem *ValidationProblem) Append(reasons ...ValidationReason) {
 
 func (problem *ValidationProblem) AppendWithPrefix(prefix string, reasons ...ValidationReason) {
 	for _, subProblem := range reasons {
-		if prefix == "" && subProblem.Name != "" {
+		if prefix != "" && subProblem.Name != "" {
 			subProblem.Name = prefix + "." + subProblem.Name
 		} else if prefix != "" {
 			subProblem.Name = prefix
