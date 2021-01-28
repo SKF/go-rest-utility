@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	dd_http "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
+
 	rest "github.com/SKF/go-rest-utility/client"
 	"github.com/SKF/go-rest-utility/client/auth"
 )
@@ -26,7 +28,7 @@ func main() {
 	client := rest.NewClient(
 		rest.WithBaseURL("https://api.sandbox.hierarchy.enlight.skf.com/"),
 		rest.WithTokenProvider(auth.RawToken(identityToken)),
-		rest.WithDatadogTracing("my-example-service"),
+		rest.WithDatadogTracing(dd_http.RTWithServiceName("my-example-service")),
 	)
 
 	request := rest.Get("nodes/{id}").

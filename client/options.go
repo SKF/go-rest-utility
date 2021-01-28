@@ -41,16 +41,23 @@ func WithOpenCensusTracing() Option {
 // so that it will automatically inject trace-headers.
 //
 // Should be used when you trace your application with Datadog.
-func WithDatadogTracing(serviceName string) Option {
+//
+// Note, when used in AWS Lambda, make sure to set the service name.
+// client.WithDatadogTracing(
+//     dd_http.RTWithServiceName("<service_name>"),
+// )
+func WithDatadogTracing(opts ...dd_http.RoundTripperOption) Option {
 	resourceNamer := func(req *http.Request) string {
 		return fmt.Sprintf("%s %s", req.Method, req.URL.String())
 	}
+	opts = append([]dd_http.RoundTripperOption{
+		dd_http.RTWithResourceNamer(resourceNamer),
+	}, opts...)
 
 	return func(c *Client) {
 		c.client = dd_http.WrapClient(
 			c.client,
-			dd_http.RTWithServiceName(serviceName),
-			dd_http.RTWithResourceNamer(resourceNamer),
+			opts...,
 		)
 	}
 }
