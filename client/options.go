@@ -44,7 +44,7 @@ func WithOpenCensusTracing() Option {
 //
 // Note, when used in AWS Lambda, make sure to set the service name.
 // client.WithDatadogTracing(
-//   dd_http.RTWithServiceName("<service_name>"),
+//     dd_http.RTWithServiceName("<service_name>"),
 // )
 func WithDatadogTracing(opts ...dd_http.RoundTripperOption) Option {
 	resourceNamer := func(req *http.Request) string {
