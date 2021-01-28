@@ -45,7 +45,9 @@ func WithDatadogTracing(opts ...dd_http.RoundTripperOption) Option {
 	resourceNamer := func(req *http.Request) string {
 		return fmt.Sprintf("%s %s", req.Method, req.URL.String())
 	}
-	opts = append(opts, dd_http.RTWithResourceNamer(resourceNamer))
+	opts = append([]dd_http.RoundTripperOption{
+		dd_http.RTWithResourceNamer(resourceNamer),
+	}, opts...)
 
 	return func(c *Client) {
 		c.client = dd_http.WrapClient(
