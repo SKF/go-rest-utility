@@ -1,0 +1,23 @@
+BasicProblem:
+  type: object
+  properties:
+    type:
+      description: URI reference that identifies the problem type.
+      type: string
+      format: url
+    title:
+      description: Short, human-readable summary of the problem type.
+      type: string
+    status:
+      description: HTTP status code associated with this problem occurrence.
+      type: integer
+    detail:
+      description: Human-readable explanation specific to this occurrence of the problem.
+      type: string
+    instance:
+      description: URI reference that identifies the specific resource on which the problem occurred.
+      type: string
+      format: url
+    correlation_id:
+      description: Unique identifier for tracing this issue in server logs.
+      type: string
