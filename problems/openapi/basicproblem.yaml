@@ -21,3 +21,4 @@ BasicProblem:
     correlation_id:
       description: Unique identifier for tracing this issue in server logs.
       type: string
+
