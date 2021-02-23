@@ -32,7 +32,7 @@ type BasicProblem struct {
 	Instance string `json:"instance,omitempty" format:"url"`
 
 	// CorrelationID, an unique identifier for tracing this issue in server logs.
-	CorrelationID string `json:"correlation_id,omitempty"`
+	CorrelationID string `json:"correlationId,omitempty"`
 }
 
 // Ensure that BasicProblem implements all methods required by Problem.
