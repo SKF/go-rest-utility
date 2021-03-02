@@ -4,8 +4,8 @@
 
 The API endpoint did not accept the `HTTP` method that you requested. Verify that,
 
--   The endpoint you tried to call exists in the [specification](/v2/swagger).
--   The `method` in the problem matches the one in the [specification](/v2/swagger).
+-   The endpoint you tried to call exists in the specification.
+-   The `method` in the problem matches the one in the specification.
 
 ## Fields
 
@@ -13,6 +13,10 @@ The API endpoint did not accept the `HTTP` method that you requested. Verify tha
 | --------- | ------------------------------------------------------------------------------------- |
 | `method`  | The requested method that is not allowed                                              |
 | `allowed` | List of all accepted methods for this endpoint. Same as provided the `Accept` header. |
+| `type`    | Path to this page                                                                     |
+| `title`   | The title of this Problem                                                             |
+| `status`  | HTTP status code that is returned with this Problem                                   |
+| `detail`  | Message about why this Problem was returned                                           |
 
 ## Example
 

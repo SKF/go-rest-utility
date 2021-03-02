@@ -32,6 +32,7 @@ func Test_MethodNotFoundHandler(t *testing.T) {
 
 	require.NoError(t, json.NewDecoder(reader).Decode(&actual))
 	assert.Equal(t, expectedRes, actual)
+	assert.Equal(t, expectedRes.Status, res.StatusCode)
 }
 
 func Test_NotFoundHandler(t *testing.T) {
@@ -50,4 +51,5 @@ func Test_NotFoundHandler(t *testing.T) {
 
 	require.NoError(t, json.NewDecoder(reader).Decode(&actual))
 	assert.Equal(t, expectedRes, actual)
+	assert.Equal(t, expectedRes.Status, res.StatusCode)
 }

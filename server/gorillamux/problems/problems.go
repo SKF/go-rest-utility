@@ -25,8 +25,8 @@ func NotFound() NotFoundProblem {
 
 type MethodNotAllowedProblem struct {
 	problems.BasicProblem
-	Method  string   `json:"requested_method,omitempty"`
-	Allowed []string `json:"allowed_methods,omitempty"`
+	Method  string   `json:"requestedMethod,omitempty"`
+	Allowed []string `json:"allowedMethods,omitempty"`
 }
 
 func MethodNotAllowed(requested string, allowed ...string) MethodNotAllowedProblem {
