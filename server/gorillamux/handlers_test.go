@@ -6,10 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/SKF/go-rest-utility/server/gorillamux/problems"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/SKF/go-rest-utility/server/gorillamux/problems"
 )
 
 func Test_MethodNotFoundHandler(t *testing.T) {
@@ -31,7 +32,6 @@ func Test_MethodNotFoundHandler(t *testing.T) {
 
 	require.NoError(t, json.NewDecoder(reader).Decode(&actual))
 	assert.Equal(t, expectedRes, actual)
-
 }
 
 func Test_NotFoundHandler(t *testing.T) {
