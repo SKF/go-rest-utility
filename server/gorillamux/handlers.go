@@ -10,7 +10,7 @@ import (
 	handlerproblems "github.com/SKF/go-rest-utility/server/gorillamux/problems"
 )
 
-func MethodNotFoundHandler(router mux.Router) http.HandlerFunc {
+func MethodNotFoundHandler(router *mux.Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowedMethods := []string{}
 
@@ -35,8 +35,8 @@ func MethodNotFoundHandler(router mux.Router) http.HandlerFunc {
 	}
 }
 
-func NotFoundHandler(problem problems.Problem) http.HandlerFunc {
+func NotFoundHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		problems.WriteResponse(r.Context(), problem, w, r)
+		problems.WriteResponse(r.Context(), handlerproblems.NotFound(), w, r)
 	}
 }

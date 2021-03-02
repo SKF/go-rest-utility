@@ -8,6 +8,21 @@ import (
 	"github.com/SKF/go-rest-utility/problems"
 )
 
+type NotFoundProblem struct {
+	problems.BasicProblem
+}
+
+func NotFound() NotFoundProblem {
+	return NotFoundProblem{
+		BasicProblem: problems.BasicProblem{
+			Type:   "/problems/route-not-found",
+			Title:  "The requested endpoint could not be found.",
+			Status: http.StatusNotFound,
+			Detail: "Ensure that the URI is a valid endpoint for the service.",
+		},
+	}
+}
+
 type MethodNotAllowedProblem struct {
 	problems.BasicProblem
 	Method  string   `json:"requested_method,omitempty"`
