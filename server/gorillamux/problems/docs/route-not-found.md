@@ -4,15 +4,6 @@
 
 The request was unable to be routed to one of the specified endpoints.
 
-## Fields
-
-|           |                                                                                       |
-| --------- | ------------------------------------------------------------------------------------- |
-| `type`    | Path to this page                                                                     |
-| `title`   | The title of this Problem                                                             |
-| `status`  | HTTP status code that is returned with this Problem                                   |
-| `detail`  | Message about why this Problem was returned                                           |
-
 ## Example
 
 ```json
