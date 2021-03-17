@@ -27,6 +27,12 @@ func WithTokenProvider(provider auth.TokenProvider) Option {
 	}
 }
 
+func WithDefaultHeader(header, value string) Option {
+	return func(c *Client) {
+		c.defaultHeaders.Set(header, value)
+	}
+}
+
 // WithDatadogTracing will add an OpenCensus transport to the client
 // so that it will automatically inject trace-headers.
 //
