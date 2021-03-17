@@ -21,16 +21,21 @@ type Client struct {
 	BaseURL       *url.URL
 	TokenProvider auth.TokenProvider
 
-	client *http.Client
+	client         *http.Client
+	defaultHeaders http.Header
 }
 
 // NewClient will create a new REST Client.
 func NewClient(opts ...Option) *Client {
 	client := &Client{
-		BaseURL:       nil,
-		TokenProvider: nil,
-		client:        new(http.Client),
+		BaseURL:        nil,
+		TokenProvider:  nil,
+		client:         new(http.Client),
+		defaultHeaders: make(http.Header),
 	}
+
+	client.defaultHeaders.Set(headers.UserAgent, DefaultUserAgent)
+	client.defaultHeaders.Set(headers.AcceptEncoding, DefaultAcceptEncoding)
 
 	for _, opt := range opts {
 		opt(client)
@@ -73,8 +78,10 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 		return nil, fmt.Errorf("unable to create http request: %w", err)
 	}
 
-	if req.header.Get(headers.UserAgent) == "" {
-		req.header.Set(headers.UserAgent, DefaultUserAgent)
+	for header, defaultValue := range c.defaultHeaders {
+		if _, exists := req.header[header]; !exists {
+			req.header[header] = defaultValue
+		}
 	}
 
 	if c.TokenProvider != nil {
@@ -85,8 +92,6 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 
 		req.header.Set(headers.Authorization, token.String())
 	}
-
-	req.header.Set(headers.AcceptEncoding, DefaultAcceptEncoding)
 
 	httpRequest.Header = req.header
 

@@ -81,6 +81,34 @@ func TestClientPut(t *testing.T) {
 	)
 }
 
+func TestClientDefaultHeader(t *testing.T) {
+	srv := newEchoHTTPServer()
+	defer srv.Close()
+
+	request := Get("endpoint")
+
+	client := NewClient(
+		WithBaseURL(srv.URL),
+		WithDefaultHeader("X-Client-ID", "78147f11-62d9-4af0-917d-a0eb26d1c1fc"),
+		WithDefaultHeader("User-Agent", "Custom"),
+	)
+
+	response, err := client.Do(context.Background(), request)
+
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, response.StatusCode)
+
+	echo := RequestEcho{}
+
+	err = response.Unmarshal(&echo)
+	require.NoError(t, err)
+	require.Equal(t, "/endpoint", echo.URL)
+	require.Equal(t, http.MethodGet, echo.Method)
+	require.Equal(t, "Custom", echo.Header.Get(headers.UserAgent))
+	require.Equal(t, DefaultAcceptEncoding, echo.Header.Get(headers.AcceptEncoding))
+	require.Equal(t, "78147f11-62d9-4af0-917d-a0eb26d1c1fc", echo.Header.Get("X-Client-ID"))
+}
+
 // newEchoHTTPServer returns a new server which echos back the request as response.
 func newEchoHTTPServer() *httptest.Server {
 	handler := http.NewServeMux()
