@@ -66,13 +66,21 @@ func (problem BasicProblem) Error() string {
 	return fmt.Sprintf("%s: %s", problem.ProblemTitle(), problem.Detail)
 }
 
-func (problem *BasicProblem) DecorateWithRequest(ctx context.Context, r *http.Request) {
+func (problem BasicProblem) DecorateWithRequest(ctx context.Context, r *http.Request) Problem {
+	result := BasicProblem{
+		Type:   problem.Type,
+		Title:  problem.Title,
+		Status: problem.Status,
+		Detail: problem.Detail,
+	}
 	// Extract the DataDog TraceID from the request context. Same logic can be found in
 	// the go-utility/log package in the WithTracing function.
 	if span := trace.FromContext(ctx); span != nil {
 		traceID := span.SpanContext().TraceID
-		problem.CorrelationID = strconv.FormatUint(binary.BigEndian.Uint64(traceID[8:]), 10)
+		result.CorrelationID = strconv.FormatUint(binary.BigEndian.Uint64(traceID[8:]), 10)
 	}
 
-	problem.Instance = r.URL.String()
+	result.Instance = r.URL.String()
+
+	return result
 }
