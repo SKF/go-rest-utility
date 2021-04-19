@@ -1,6 +1,7 @@
 package problems_test
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -13,9 +14,12 @@ import (
 	"github.com/SKF/go-rest-utility/problems"
 )
 
-func runWriteResponse(err error) *http.Response {
+func runWriteResponse(err error, correlationID uint64) *http.Response {
+	spanCtx := trace.SpanContext{}
+	binary.BigEndian.PutUint64(spanCtx.TraceID[8:], correlationID)
+
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		ctx, span := trace.StartSpan(r.Context(), "Handler")
+		ctx, span := trace.StartSpanWithRemoteParent(r.Context(), "Handler", spanCtx)
 		defer span.End()
 
 		problems.WriteResponse(ctx, err, w, r)
@@ -30,9 +34,12 @@ func runWriteResponse(err error) *http.Response {
 }
 
 func TestWriteResponse_VanillaError(t *testing.T) {
-	actualError := fmt.Errorf("hello")
+	var (
+		actualError                = fmt.Errorf("hello")
+		actualCorrelationID uint64 = 0xDEADBEEF
+	)
 
-	resp := runWriteResponse(actualError)
+	resp := runWriteResponse(actualError, actualCorrelationID)
 	defer resp.Body.Close()
 
 	require.Equal(t, http.StatusInternalServerError, resp.StatusCode)
@@ -44,7 +51,7 @@ func TestWriteResponse_VanillaError(t *testing.T) {
 
 	require.Equal(t, "/problems/internal-server-error", problem.Type)
 	require.Equal(t, "http://example.com/", problem.Instance)
-	require.NotEmpty(t, problem.CorrelationID)
+	require.Equal(t, "3735928559", problem.CorrelationID)
 }
 
 type ImportantProblem struct {
@@ -54,17 +61,20 @@ type ImportantProblem struct {
 }
 
 func TestWriteResponse_DecoratableProblem(t *testing.T) {
-	actualError := ImportantProblem{
-		BasicProblem: problems.BasicProblem{
-			Type:   "/problems/custom",
-			Title:  "Custom Problem.",
-			Status: http.StatusTeapot,
-			Detail: "I'm very important!",
-		},
-		Important: "Very!",
-	}
+	var (
+		actualError = ImportantProblem{
+			BasicProblem: problems.BasicProblem{
+				Type:   "/problems/custom",
+				Title:  "Custom Problem.",
+				Status: http.StatusTeapot,
+				Detail: "I'm very important!",
+			},
+			Important: "Very!",
+		}
+		actualCorrelationID uint64 = 0xDEADBEEF
+	)
 
-	resp := runWriteResponse(actualError)
+	resp := runWriteResponse(actualError, actualCorrelationID)
 	defer resp.Body.Close()
 
 	require.Equal(t, http.StatusTeapot, resp.StatusCode)
@@ -77,5 +87,5 @@ func TestWriteResponse_DecoratableProblem(t *testing.T) {
 	require.Equal(t, actualError.Type, problem.Type)
 	require.Equal(t, actualError.Important, problem.Important)
 	require.Equal(t, "http://example.com/", problem.Instance)
-	require.NotEmpty(t, problem.CorrelationID)
+	require.Equal(t, "3735928559", problem.CorrelationID)
 }
