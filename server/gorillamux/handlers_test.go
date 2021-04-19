@@ -14,7 +14,7 @@ import (
 )
 
 func Test_MethodNotFoundHandler(t *testing.T) {
-	expectedRes := problems.MethodNotAllowed("GET", "PUT", "POST")
+	expected := problems.MethodNotAllowed("GET", "PUT", "POST")
 
 	router := mux.NewRouter()
 	router.Name("testRouter").Methods("PUT", "POST")
@@ -31,12 +31,15 @@ func Test_MethodNotFoundHandler(t *testing.T) {
 	actual := problems.MethodNotAllowedProblem{}
 
 	require.NoError(t, json.NewDecoder(reader).Decode(&actual))
-	assert.Equal(t, expectedRes, actual)
-	assert.Equal(t, expectedRes.Status, res.StatusCode)
+
+	assert.Equal(t, expected.Type, actual.Type)
+	assert.Equal(t, expected.Status, actual.Status)
+	assert.Equal(t, expected.Method, actual.Method)
+	assert.Equal(t, expected.Allowed, actual.Allowed)
 }
 
 func Test_NotFoundHandler(t *testing.T) {
-	expectedRes := problems.NotFound()
+	expected := problems.NotFound()
 
 	ts := httptest.NewServer(NotFoundHandler())
 	defer ts.Close()
@@ -50,6 +53,7 @@ func Test_NotFoundHandler(t *testing.T) {
 	actual := problems.NotFoundProblem{}
 
 	require.NoError(t, json.NewDecoder(reader).Decode(&actual))
-	assert.Equal(t, expectedRes, actual)
-	assert.Equal(t, expectedRes.Status, res.StatusCode)
+
+	assert.Equal(t, expected.Type, actual.Type)
+	assert.Equal(t, expected.Status, actual.Status)
 }
