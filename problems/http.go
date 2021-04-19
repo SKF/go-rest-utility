@@ -21,20 +21,7 @@ func Generic(status int) Problem {
 // The Problem will be decorated with request information and logged if possible.
 func WriteResponse(ctx context.Context, err error, w http.ResponseWriter, r *http.Request) {
 	problem := FromError(err)
-
-	// reflect.Value to the underlying implementation of the Problem interface
-	problemValue := reflect.Indirect(reflect.ValueOf(problem))
-
-	// Copy the underlying problem to get a pointer to it
-	problemCopy := reflect.New(problemValue.Type())
-	problemCopy.Elem().Set(problemValue)
-
-	if decoratableProblem, ok := problemCopy.Interface().(RequestDecoratableProblem); ok {
-		decoratableProblem.DecorateWithRequest(ctx, r)
-
-		// DecorateWithRequest should have changed the problem
-		problem = decoratableProblem
-	}
+	problem = tryDecorateWithRequest(ctx, problem, r)
 
 	statusCode := problem.ProblemStatus()
 
@@ -57,4 +44,22 @@ func WriteResponse(ctx context.Context, err error, w http.ResponseWriter, r *htt
 	if encodeErr := json.NewEncoder(w).Encode(problem); encodeErr != nil {
 		l.WithError(encodeErr).Error("Unable to write problem output")
 	}
+}
+
+// tryDecorateWithRequest attempts to call DecorateWithRequest if the supplied problem implements it
+//
+// The returned value is the decorated problem or the input problem if not supported
+func tryDecorateWithRequest(ctx context.Context, problem Problem, r *http.Request) Problem {
+	problemValue := reflect.Indirect(reflect.ValueOf(problem))
+
+	problemCopy := reflect.New(problemValue.Type())
+	problemCopy.Elem().Set(problemValue)
+
+	if decoratableProblem, ok := problemCopy.Interface().(RequestDecoratableProblem); ok {
+		decoratableProblem.DecorateWithRequest(ctx, r)
+
+		return decoratableProblem
+	}
+
+	return problem
 }
