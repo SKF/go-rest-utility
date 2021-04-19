@@ -36,7 +36,7 @@ func runWriteResponse(err error, correlationID uint64) *http.Response {
 func TestWriteResponse_VanillaError(t *testing.T) {
 	var (
 		actualError                = fmt.Errorf("hello")
-		actualCorrelationID uint64 = 0xDEADBEEF
+		actualCorrelationID uint64 = 3735928559
 	)
 
 	resp := runWriteResponse(actualError, actualCorrelationID)
@@ -71,7 +71,7 @@ func TestWriteResponse_DecoratableProblem(t *testing.T) {
 			},
 			Important: "Very!",
 		}
-		actualCorrelationID uint64 = 0xDEADBEEF
+		actualCorrelationID uint64 = 3735928559
 	)
 
 	resp := runWriteResponse(actualError, actualCorrelationID)
