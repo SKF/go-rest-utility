@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"reflect"
 
 	"github.com/SKF/go-utility/v2/log"
 )
@@ -21,8 +22,18 @@ func Generic(status int) Problem {
 func WriteResponse(ctx context.Context, err error, w http.ResponseWriter, r *http.Request) {
 	problem := FromError(err)
 
-	if decoratableProblem, ok := problem.(RequestDecoratableProblem); ok {
+	// reflect.Value to the underlying implementation of the Problem interface
+	problemValue := reflect.Indirect(reflect.ValueOf(problem))
+
+	// Copy the underlying problem to get a pointer to it
+	problemCopy := reflect.New(problemValue.Type())
+	problemCopy.Elem().Set(problemValue)
+
+	if decoratableProblem, ok := problemCopy.Interface().(RequestDecoratableProblem); ok {
 		decoratableProblem.DecorateWithRequest(ctx, r)
+
+		// DecorateWithRequest should have changed the problem
+		problem = decoratableProblem
 	}
 
 	statusCode := problem.ProblemStatus()

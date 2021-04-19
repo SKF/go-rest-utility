@@ -24,6 +24,8 @@ type Problem interface {
 }
 
 type RequestDecoratableProblem interface {
+	Problem
+
 	// DecorateWithRequest, attempt to decorate the Problem with information from the request.
 	DecorateWithRequest(ctx context.Context, r *http.Request)
 }
