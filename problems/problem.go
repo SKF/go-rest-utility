@@ -2,6 +2,7 @@ package problems
 
 import (
 	"context"
+	"errors"
 	"net/http"
 )
 
@@ -33,9 +34,15 @@ type RequestDecoratableProblem interface {
 // FromError, convert an Go error into a Problem. This is a no-op if the supplied
 // error already is a problem. Otherwise the returned error is an InternalProblem (HTTP 500).
 func FromError(err error) Problem {
-	if problem, alreadyProblem := err.(Problem); alreadyProblem {
-		return problem
+	original := err
+
+	for err != nil {
+		if problem, alreadyProblem := err.(Problem); alreadyProblem {
+			return problem
+		}
+
+		err = errors.Unwrap(err)
 	}
 
-	return Internal(err)
+	return Internal(original)
 }
