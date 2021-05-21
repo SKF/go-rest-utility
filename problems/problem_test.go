@@ -15,17 +15,17 @@ func TestFromError(t *testing.T) {
 		wantStatusCode int
 	}{
 		{
-				name: "Problem is Problem",
+			name:           "Problem is Problem",
 			err:            BasicProblem{Status: http.StatusBadRequest},
 			wantStatusCode: http.StatusBadRequest,
 		},
 		{
-			name: "Wrapped problem is Problem",
+			name:           "Wrapped problem is Problem",
 			err:            fmt.Errorf("some text: %w", BasicProblem{Status: http.StatusBadRequest}),
 			wantStatusCode: http.StatusBadRequest,
 		},
 		{
-			name: "Non problem returns internal server error problem",
+			name:           "Non problem returns internal server error problem",
 			err:            fmt.Errorf("some text"),
 			wantStatusCode: http.StatusInternalServerError,
 		},
