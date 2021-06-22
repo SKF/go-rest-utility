@@ -67,3 +67,10 @@ func WithDatadogTracing(opts ...dd_http.RoundTripperOption) Option {
 		)
 	}
 }
+
+func WithClientID(clientID string) Option {
+	clientHeader := "X-Client-Id"
+	return func(c *Client) {
+		c.defaultHeaders.Set(clientHeader, clientID)
+	}
+}
