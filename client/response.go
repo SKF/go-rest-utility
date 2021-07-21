@@ -3,6 +3,7 @@ package client
 import (
 	"compress/gzip"
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/go-http-utils/headers"
@@ -17,7 +18,7 @@ func (r *Response) Unmarshal(v interface{}) (err error) {
 
 	switch r.Header.Get(headers.ContentEncoding) {
 	case "gzip":
-		defer reader.Close()
+		defer tryClosing(reader)
 
 		if reader, err = gzip.NewReader(reader); err != nil {
 			return
@@ -31,4 +32,8 @@ func (r *Response) Unmarshal(v interface{}) (err error) {
 	}
 
 	return nil
+}
+
+func tryClosing(reader io.ReadCloser) error {
+	return reader.Close()
 }

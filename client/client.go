@@ -3,9 +3,8 @@ package client
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"net/url"
+	netUrl "net/url"
 
 	"github.com/go-http-utils/headers"
 
@@ -18,7 +17,7 @@ const (
 )
 
 type Client struct {
-	BaseURL       *url.URL
+	BaseURL       *netUrl.URL
 	TokenProvider auth.TokenProvider
 
 	client         *http.Client
@@ -55,7 +54,7 @@ func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 		return nil, fmt.Errorf("unable to perform http request: %w", err)
 	}
 
-	return c.prepareResponse(httpResponse)
+	return &Response{*httpResponse}, nil
 }
 
 func (c *Client) DoAndUnmarshal(ctx context.Context, r *Request, v interface{}) error {
@@ -96,27 +95,4 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 	httpRequest.Header = req.header
 
 	return httpRequest, nil
-}
-
-func (c *Client) prepareResponse(resp *http.Response) (*Response, error) {
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		defer resp.Body.Close()
-
-		errorBody, readErr := ioutil.ReadAll(resp.Body)
-		if readErr != nil {
-			return nil, fmt.Errorf("got %d for %s: [no body]", resp.StatusCode, resp.Request.URL)
-		}
-
-		if resp.StatusCode == http.StatusUnauthorized {
-			return nil, fmt.Errorf("got 401 for %s: %s: %w", resp.Request.URL, errorBody, ErrUnauthorized)
-		} else if resp.StatusCode == http.StatusForbidden {
-			return nil, fmt.Errorf("got 403 for %s: %s: %w", resp.Request.URL, errorBody, ErrForbidden)
-		} else if resp.StatusCode == http.StatusNotFound {
-			return nil, fmt.Errorf("got 404 for %s: %s: %w", resp.Request.URL, errorBody, ErrNotFound)
-		}
-
-		return nil, fmt.Errorf("got %d for %s: %s", resp.StatusCode, resp.Request.URL, errorBody)
-	}
-
-	return &Response{*resp}, nil
 }

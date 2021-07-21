@@ -1,7 +1,7 @@
 package client
 
 import (
-	"net/url"
+	netUrl "net/url"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -92,8 +92,8 @@ func TestExpandURLWithNoBaseURL(t *testing.T) {
 	require.Equal(t, "https://example.com/endpoint/1", url.String())
 }
 
-func urlMustParse(rawurl string) *url.URL {
-	parsedURL, err := url.Parse(rawurl)
+func urlMustParse(rawurl string) *netUrl.URL {
+	parsedURL, err := netUrl.Parse(rawurl)
 	if err != nil {
 		panic(err)
 	}
