@@ -30,7 +30,6 @@ linters-settings:
 linters:
   enable:
     - bodyclose #- checks whether HTTP response body is closed successfully
-    - golint #- Golint differs from gofmt. Gofmt reformats Go source code, whereas golint prints out style mistakes
     - rowserrcheck #- checks whether Err of rows is checked successfully
     - stylecheck #- Stylecheck is a replacement for golint
     - gosec #- Inspects source code for security problems
@@ -52,3 +51,4 @@ linters:
     - gomnd #- An analyzer to detect magic numbers.
     - gomodguard #- Allow and block list linter for direct Go module dependencies. This is different from depguard where there are different block types for example version constraints and module recommendations.
     - nestif #- Reports deeply nested if statements
+    - noctx #- Check if with context function can be used
