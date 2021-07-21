@@ -51,6 +51,10 @@ func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 
 	httpResponse, err := c.client.Do(httpRequest)
 	if err != nil {
+		if httpResponse != nil && httpResponse.Body != nil {
+			httpResponse.Body.Close()
+		}
+
 		return nil, fmt.Errorf("unable to perform http request: %w", err)
 	}
 

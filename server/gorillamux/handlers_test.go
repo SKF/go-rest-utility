@@ -1,6 +1,7 @@
 package gorillamux
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -21,11 +22,13 @@ func Test_MethodNotFoundHandler(t *testing.T) {
 
 	ts := httptest.NewServer(MethodNotFoundHandler(router))
 	defer ts.Close()
-	res, err := http.Get(ts.URL)
-
+	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, ts.URL, http.NoBody)
 	require.NoError(t, err)
 
-	reader := res.Body
+	response, err := http.DefaultClient.Do(request)
+	require.NoError(t, err)
+
+	reader := response.Body
 	defer reader.Close()
 
 	actual := problems.MethodNotAllowedProblem{}
@@ -43,11 +46,13 @@ func Test_NotFoundHandler(t *testing.T) {
 
 	ts := httptest.NewServer(NotFoundHandler())
 	defer ts.Close()
-	res, err := http.Get(ts.URL)
-
+	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, ts.URL, http.NoBody)
 	require.NoError(t, err)
 
-	reader := res.Body
+	response, err := http.DefaultClient.Do(request)
+	require.NoError(t, err)
+
+	reader := response.Body
 	defer reader.Close()
 
 	actual := problems.NotFoundProblem{}
