@@ -1,8 +1,10 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	netUrl "net/url"
 
@@ -51,14 +53,21 @@ func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 
 	httpResponse, err := c.client.Do(httpRequest)
 	if err != nil {
-		if httpResponse != nil && httpResponse.Body != nil {
-			httpResponse.Body.Close()
-		}
-
 		return nil, fmt.Errorf("unable to perform http request: %w", err)
 	}
+	defer httpResponse.Body.Close()
 
-	return &Response{*httpResponse}, nil
+	bodyBytes, err := ioutil.ReadAll(httpResponse.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read body: %w", err)
+	}
+
+	newBody := ioutil.NopCloser(bytes.NewReader(bodyBytes))
+	httpResponse.Body = newBody
+
+	return &Response{
+		Response: *httpResponse,
+	}, nil
 }
 
 func (c *Client) DoAndUnmarshal(ctx context.Context, r *Request, v interface{}) error {
