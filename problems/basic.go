@@ -71,7 +71,7 @@ func (problem *BasicProblem) DecorateWithRequest(ctx context.Context, r *http.Re
 	// the go-utility/log package in the WithTracing function.
 	if span := trace.FromContext(ctx); span != nil {
 		traceID := span.SpanContext().TraceID
-		problem.CorrelationID = strconv.FormatUint(binary.BigEndian.Uint64(traceID[8:]), 10)
+		problem.CorrelationID = strconv.FormatUint(binary.BigEndian.Uint64(traceID[8:]), 10) //nolint:gomnd
 	}
 
 	problem.Instance = r.URL.String()
