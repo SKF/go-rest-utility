@@ -33,7 +33,12 @@ func WithDefaultHeader(header, value string) Option {
 	}
 }
 
-// WithDatadogTracing will add an OpenCensus transport to the client
+func WithProblemDecoder(decoder ProblemDecoder) Option {
+	return func(c *Client) {
+		c.problemDecoder = decoder
+	}
+}
+
 // so that it will automatically inject trace-headers.
 //
 // Should be used when you trace your application with OpenCensus.
