@@ -79,18 +79,6 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 		return nil, fmt.Errorf("unable to create http request: %w", err)
 	}
 
-	/*
-		if req.body != nil && httpRequest.ContentLength <= 0 {
-			body, err := io.ReadAll(req.body)
-			if err != nil {
-				return nil, err
-			}
-
-			httpRequest.Body = io.NopCloser(bytes.NewReader(body))
-			httpRequest.ContentLength = int64(len(body))
-		}
-	*/
-
 	for header, defaultValue := range c.defaultHeaders {
 		if _, exists := req.header[header]; !exists {
 			req.header[header] = defaultValue
