@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -80,6 +79,18 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 		return nil, fmt.Errorf("unable to create http request: %w", err)
 	}
 
+	/*
+		if req.body != nil && httpRequest.ContentLength <= 0 {
+			body, err := io.ReadAll(req.body)
+			if err != nil {
+				return nil, err
+			}
+
+			httpRequest.Body = io.NopCloser(bytes.NewReader(body))
+			httpRequest.ContentLength = int64(len(body))
+		}
+	*/
+
 	for header, defaultValue := range c.defaultHeaders {
 		if _, exists := req.header[header]; !exists {
 			req.header[header] = defaultValue
@@ -111,22 +122,9 @@ func (c *Client) prepareResponse(ctx context.Context, resp *http.Response) (*Res
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		defer resp.Body.Close()
-
-		errorBody, readErr := ioutil.ReadAll(resp.Body)
-		if readErr != nil {
-			return nil, fmt.Errorf("got %d for %s: [no body]", resp.StatusCode, resp.Request.URL)
-		}
-
-		if resp.StatusCode == http.StatusUnauthorized {
-			return nil, fmt.Errorf("got 401 for %s: %s: %w", resp.Request.URL, errorBody, ErrUnauthorized)
-		} else if resp.StatusCode == http.StatusForbidden {
-			return nil, fmt.Errorf("got 403 for %s: %s: %w", resp.Request.URL, errorBody, ErrForbidden)
-		} else if resp.StatusCode == http.StatusNotFound {
-			return nil, fmt.Errorf("got 404 for %s: %s: %w", resp.Request.URL, errorBody, ErrNotFound)
-		}
-
-		return nil, fmt.Errorf("got %d for %s: %s", resp.StatusCode, resp.Request.URL, errorBody)
+		return nil, newHTTPError(resp.StatusCode).
+			withInstance(resp.Request.URL.String()).
+			withBody(resp.Body)
 	}
 
 	return &Response{*resp}, nil
