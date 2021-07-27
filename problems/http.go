@@ -9,6 +9,8 @@ import (
 	"github.com/SKF/go-utility/v2/log"
 )
 
+const ContentType = "application/problem+json"
+
 // Generic, returns a generic HTTP-based Problem from a HTTP status code.
 func Generic(status int) Problem {
 	return BasicProblem{
@@ -38,7 +40,7 @@ func WriteResponse(ctx context.Context, err error, w http.ResponseWriter, r *htt
 		l.Info(problem.ProblemTitle())
 	}
 
-	w.Header().Set("Content-Type", "application/problem+json")
+	w.Header().Set("Content-Type", ContentType)
 	w.WriteHeader(statusCode)
 
 	if encodeErr := json.NewEncoder(w).Encode(problem); encodeErr != nil {

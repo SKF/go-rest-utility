@@ -9,6 +9,7 @@ import (
 	"github.com/go-http-utils/headers"
 
 	"github.com/SKF/go-rest-utility/client/auth"
+	"github.com/SKF/go-rest-utility/problems"
 )
 
 const (
@@ -100,7 +101,7 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 }
 
 func (c *Client) prepareResponse(ctx context.Context, resp *http.Response) (*Response, error) {
-	if c.problemDecoder != nil && resp.Header.Get(headers.ContentType) == "application/problem+json" {
+	if c.problemDecoder != nil && resp.Header.Get(headers.ContentType) == problems.ContentType {
 		problem, err := c.problemDecoder.DecodeProblem(ctx, resp)
 		if err != nil {
 			return nil, fmt.Errorf("unable to decode http error into problem: %w", err)
