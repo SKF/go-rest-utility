@@ -39,6 +39,7 @@ func WithProblemDecoder(decoder ProblemDecoder) Option {
 	}
 }
 
+// WithOpenCensusTracing will add an OpenCensus transport to the client
 // so that it will automatically inject trace-headers.
 //
 // Should be used when you trace your application with OpenCensus.
