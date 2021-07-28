@@ -3,13 +3,13 @@ package client
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 
 	"github.com/go-http-utils/headers"
 
 	"github.com/SKF/go-rest-utility/client/auth"
+	"github.com/SKF/go-rest-utility/problems"
 )
 
 const (
@@ -18,8 +18,9 @@ const (
 )
 
 type Client struct {
-	BaseURL       *url.URL
-	TokenProvider auth.TokenProvider
+	BaseURL        *url.URL
+	TokenProvider  auth.TokenProvider
+	problemDecoder ProblemDecoder
 
 	client         *http.Client
 	defaultHeaders http.Header
@@ -30,6 +31,7 @@ func NewClient(opts ...Option) *Client {
 	client := &Client{
 		BaseURL:        nil,
 		TokenProvider:  nil,
+		problemDecoder: nil,
 		client:         new(http.Client),
 		defaultHeaders: make(http.Header),
 	}
@@ -55,7 +57,7 @@ func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 		return nil, fmt.Errorf("unable to perform http request: %w", err)
 	}
 
-	return c.prepareResponse(httpResponse)
+	return c.prepareResponse(ctx, httpResponse)
 }
 
 func (c *Client) DoAndUnmarshal(ctx context.Context, r *Request, v interface{}) error {
@@ -98,24 +100,20 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 	return httpRequest, nil
 }
 
-func (c *Client) prepareResponse(resp *http.Response) (*Response, error) {
+func (c *Client) prepareResponse(ctx context.Context, resp *http.Response) (*Response, error) {
+	if c.problemDecoder != nil && resp.Header.Get(headers.ContentType) == problems.ContentType {
+		problem, err := c.problemDecoder.DecodeProblem(ctx, resp)
+		if err != nil {
+			return nil, fmt.Errorf("unable to decode http error into problem: %w", err)
+		}
+
+		return nil, problem
+	}
+
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		defer resp.Body.Close()
-
-		errorBody, readErr := ioutil.ReadAll(resp.Body)
-		if readErr != nil {
-			return nil, fmt.Errorf("got %d for %s: [no body]", resp.StatusCode, resp.Request.URL)
-		}
-
-		if resp.StatusCode == http.StatusUnauthorized {
-			return nil, fmt.Errorf("got 401 for %s: %s: %w", resp.Request.URL, errorBody, ErrUnauthorized)
-		} else if resp.StatusCode == http.StatusForbidden {
-			return nil, fmt.Errorf("got 403 for %s: %s: %w", resp.Request.URL, errorBody, ErrForbidden)
-		} else if resp.StatusCode == http.StatusNotFound {
-			return nil, fmt.Errorf("got 404 for %s: %s: %w", resp.Request.URL, errorBody, ErrNotFound)
-		}
-
-		return nil, fmt.Errorf("got %d for %s: %s", resp.StatusCode, resp.Request.URL, errorBody)
+		return nil, newHTTPError(resp.StatusCode).
+			withInstance(resp.Request.URL.String()).
+			withBody(resp.Body)
 	}
 
 	return &Response{*resp}, nil
