@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"reflect"
 
+	clientid_models "github.com/SKF/go-enlight-middleware/client-id/models"
 	"github.com/SKF/go-utility/v2/log"
 )
 
@@ -32,6 +33,10 @@ func WriteResponse(ctx context.Context, err error, w http.ResponseWriter, r *htt
 		WithUserID(ctx).
 		WithError(err).
 		WithField("code", statusCode)
+
+	if clientID, exists := clientid_models.FromContext(ctx); exists {
+		l.WithField("clientId", clientID.Identifier.String)
+	}
 
 	// Log as an Error if statusCode is 5XX, otherwise as Info.
 	if statusCode/100 == http.StatusInternalServerError/100 {
