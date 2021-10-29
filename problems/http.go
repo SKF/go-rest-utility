@@ -29,6 +29,7 @@ func WriteResponse(ctx context.Context, err error, w http.ResponseWriter, r *htt
 
 	l := log.
 		WithTracing(ctx).
+		WithClientID(ctx).
 		WithUserID(ctx).
 		WithError(err).
 		WithField("code", statusCode)
