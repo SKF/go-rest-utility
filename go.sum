@@ -30,6 +30,8 @@ github.com/SKF/go-utility/v2 v2.25.0 h1:9uF0wcdFNun8eiwXwm5qv7pWZVh5wqCa4oUbfr3j
 github.com/SKF/go-utility/v2 v2.25.0/go.mod h1:vNsxDA+tBxVW1AuQmCI3GoZu4RNG76bt6as4ZW9rUWw=
 github.com/SKF/go-utility/v2 v2.25.1 h1:f+6CF4uYplP+36zVtlVQ2XL2xdUOM1Wt22BCfBCV960=
 github.com/SKF/go-utility/v2 v2.25.1/go.mod h1:vNsxDA+tBxVW1AuQmCI3GoZu4RNG76bt6as4ZW9rUWw=
+github.com/SKF/go-utility/v2 v2.25.2 h1:TcxLD6g6UcMy/zwhkdMxtYyv/Mtf+w/0TEEGIKHfGWk=
+github.com/SKF/go-utility/v2 v2.25.2/go.mod h1:vNsxDA+tBxVW1AuQmCI3GoZu4RNG76bt6as4ZW9rUWw=
 github.com/SKF/proto v1.21.0-go/go.mod h1:fLZMzpComrKyD9V74fS1lT4ryHZX9LlYYjM1TmBZw+s=
 github.com/SKF/proto/v2 v2.4.1-go/go.mod h1:l4Wu+tc9SHy8qdecDR0BZCzg/i3+Nn436TjIQzOASTM=
 github.com/SKF/proto/v2 v2.4.3-go/go.mod h1:AJcLizaFZk3BLdqt4QhPgtICUrlZZQ0XLV3/fFALoW0=
