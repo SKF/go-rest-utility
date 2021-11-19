@@ -19,7 +19,7 @@ func Validation(reasons ...ValidationReason) ValidationProblem {
 	}
 }
 
-func (problem ValidationProblem) TrimEmpty() error {
+func (problem ValidationProblem) TrimEmpty() Problem {
 	if len(problem.Reasons) == 0 {
 		return nil
 	}
