@@ -13,7 +13,7 @@ type CachedTokenProvider struct {
 	TokenProvider
 	gracePeriod time.Duration
 
-	mu          sync.RWMutex
+	m           sync.RWMutex
 	refreshOnce *sync.Once
 
 	rawToken    RawToken
@@ -39,11 +39,11 @@ func (p *CachedTokenProvider) WithGracePeriod(duration time.Duration) *CachedTok
 }
 
 func (p *CachedTokenProvider) GetRawToken(ctx context.Context) (RawToken, error) {
-	p.mu.RLock()
+	p.m.RLock()
 
 	// Is the cached token still alive?
 	if time.Now().Before(p.ttl) {
-		defer p.mu.RUnlock()
+		defer p.m.RUnlock()
 		return p.rawToken, nil
 	}
 
@@ -51,11 +51,11 @@ func (p *CachedTokenProvider) GetRawToken(ctx context.Context) (RawToken, error)
 	// once we unlock the read mutex and want to replace it.
 	refreshOnce := p.refreshOnce
 
-	p.mu.RUnlock()
+	p.m.RUnlock()
 
 	refreshOnce.Do(func() {
-		p.mu.Lock()
-		defer p.mu.Unlock()
+		p.m.Lock()
+		defer p.m.Unlock()
 
 		// This check avoid some scenarios where a double refresh is possible.
 		if !time.Now().Before(p.ttl) {
@@ -66,8 +66,8 @@ func (p *CachedTokenProvider) GetRawToken(ctx context.Context) (RawToken, error)
 		p.refreshOnce = new(sync.Once)
 	})
 
-	p.mu.RLock()
-	defer p.mu.RUnlock()
+	p.m.RLock()
+	defer p.m.RUnlock()
 
 	return p.rawToken, p.supplyError
 }
