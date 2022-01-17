@@ -31,7 +31,7 @@ type SecretsClient interface {
 }
 
 type SecretsManagerV1Client struct {
-	sm_v1.SecretsManager
+	*sm_v1.SecretsManager
 }
 
 type SecretsManagerV2Client struct {
