@@ -3,6 +3,7 @@ module github.com/SKF/go-rest-utility
 go 1.16
 
 require (
+	github.com/SKF/go-enlight-middleware v0.4.0
 	github.com/SKF/go-utility/v2 v2.25.2
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/gorilla/mux v1.8.0
