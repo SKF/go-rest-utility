@@ -1,0 +1,108 @@
+openapi: '3.0.2'
+info:
+  title: service-example
+  version: '1.0'
+  description: This is a small example api
+servers:
+  - url: https://example.sandbox.com
+    description: sandbox
+  - url: https://example.test.com
+    description: test
+security:
+  - accessToken: []
+
+components:
+  securitySchemes:
+    accessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: access token
+    clientID:
+      type: apiKey
+      name: X-Client-ID
+      in: header
+      description: used in order to be able to track from which applicaiton the user is doing the request.
+  schemas:
+    Problem:
+      type: object
+      properties:
+        type:
+          description: URI reference that identifies the problem type.
+          type: string
+          format: url
+        title:
+          description: Short, human-readable summary of the problem type.
+          type: string
+        status:
+          description: HTTP status code associated with this problem occurrence.
+          type: integer
+        detail:
+          description: Human-readable explanation specific to this occurrence of the problem.
+          type: string
+        instance:
+          description: URI reference that identifies the specific resource on which the problem occurred.
+          type: string
+          format: url
+        correlation_id:
+          description: Unique identifier for tracing this issue in server logs.
+          type: string
+    GetIDResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+
+paths:
+  /id/{id}:
+    get:
+      summary: get the given id
+      description: |
+        Returns the id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-Client-ID
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      tags:
+        - CRUD
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetIDResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
