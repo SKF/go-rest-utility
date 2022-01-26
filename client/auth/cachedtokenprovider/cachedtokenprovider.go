@@ -5,10 +5,16 @@ import (
 	"fmt"
 	"time"
 
+	auth_model "github.com/SKF/go-utility/v2/auth"
 	"github.com/SKF/go-utility/v2/auth/secretsmanagerauth"
 
 	"github.com/SKF/go-rest-utility/client/auth"
+	auth_client "github.com/SKF/go-rest-utility/client/auth/secretsmanagerauth"
 )
+
+type SecretsManagerAuth interface {
+	GetTokens(ctx context.Context) (auth_model.Tokens, error)
+}
 
 type Config struct {
 	secretsmanagerauth.Config
@@ -16,45 +22,55 @@ type Config struct {
 }
 
 type Provider struct {
-	config Config
+	secretsManagerAuth SecretsManagerAuth
+	config             Config
 
-	serviceAccountToken string
-	lastRefreshTime     time.Time
+	token           string
+	lastRefreshTime time.Time
 }
 
 // Ensure Provider implements auth.TokenProvider interface
-var _ auth.TokenProvider = Provider{}
+var _ auth.TokenProvider = &Provider{}
 
+// New initializes a Provider and configures the default secrets manager auth implementation.
 func New(config Config) *Provider {
-	secretsmanagerauth.Configure(config.Config)
-
 	return &Provider{
-		config:          config,
+		secretsManagerAuth: auth_client.New(config.Config),
+		config:             config,
+
 		lastRefreshTime: time.Now(),
 	}
 }
 
-func (provider Provider) GetRawToken(ctx context.Context) (auth.RawToken, error) {
+func NewWithCustomAuth(config Config, secretsManagerAuth SecretsManagerAuth) *Provider {
+	return &Provider{
+		secretsManagerAuth: secretsManagerAuth,
+		config:             config,
+
+		lastRefreshTime: time.Now(),
+	}
+}
+
+func (provider *Provider) GetRawToken(ctx context.Context) (auth.RawToken, error) {
 	if err := provider.refresh(ctx); err != nil {
-		return "", fmt.Errorf("failed to refresh identity token: %w", err)
+		return "", fmt.Errorf("failed to refresh token: %w", err)
 	}
 
-	return auth.RawToken(provider.serviceAccountToken), nil
+	return auth.RawToken(provider.token), nil
 }
 
 func (provider *Provider) refresh(ctx context.Context) error {
 	if provider.tokenIsUninitialized() || provider.tokenIsOutdated() {
-		if err := secretsmanagerauth.SignIn(ctx); err != nil {
-			return fmt.Errorf("unable to sign-in as service user '%s': %w", provider.config.SecretKey, err)
+		tokens, err := provider.secretsManagerAuth.GetTokens(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to get tokens from secrets manager auth: %w", err)
 		}
-
-		tokens := secretsmanagerauth.GetTokens()
 
 		if tokens.IdentityToken == "" {
 			return fmt.Errorf("identityToken was empty unexpectedly")
 		}
 
-		provider.serviceAccountToken = tokens.IdentityToken
+		provider.token = tokens.IdentityToken
 		provider.lastRefreshTime = time.Now()
 	}
 
@@ -67,5 +83,5 @@ func (provider Provider) tokenIsOutdated() bool {
 }
 
 func (provider Provider) tokenIsUninitialized() bool {
-	return provider.serviceAccountToken == ""
+	return provider.token == ""
 }
