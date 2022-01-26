@@ -7,20 +7,11 @@ import (
 	"github.com/SKF/go-utility/v2/auth/secretsmanagerauth"
 )
 
-type RawToken string
-
 type TokenProvider interface {
 	GetRawToken(ctx context.Context) (RawToken, error)
 }
 
-func (token RawToken) GetRawToken(ctx context.Context) (RawToken, error) {
-	return token, nil
-}
-
-func (token RawToken) String() string {
-	return string(token)
-}
-
+// Deprecated: Use CredentialsTokenProvider instead
 type SecretsManagerTokenProvider struct {
 	configured bool
 	Config     secretsmanagerauth.Config

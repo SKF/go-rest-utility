@@ -23,7 +23,9 @@ func WithBaseURL(baseURL string) Option {
 
 func WithTokenProvider(provider auth.TokenProvider) Option {
 	return func(c *Client) {
-		c.TokenProvider = provider
+		// Not all TokenProviders is thread-safe, wrap in CachedTokenProvider
+		// to ensure it is. Is a no-op if it already is.
+		c.TokenProvider = auth.NewCachedTokenProvider(provider)
 	}
 }
 
