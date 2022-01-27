@@ -2,6 +2,7 @@ CURL ?= curl
 TAR ?= tar
 INSTALL ?= install
 SED ?= sed
+ECHO ?= echo
 
 SWAGGER_UI_VERSION ?= 3.38.0
 
@@ -31,6 +32,8 @@ docs: swagger-ui-${SWAGGER_UI_VERSION}.tar.gz docs/service.yaml
 	cd docs && $(RM) $@*.map $@*-es-bundle*.js $@swagger-ui.js
 # Insert location of OpenAPI spec to be rendered.
 	$(SED) -i 's|url: "[^"]*",|url: "{{.EndpointBaseURL}}/docs/swagger/service.yaml",|g' "docs/index.html"
+# Add goembed FS
+
 
 clean:
 	$(RM) -r docs swagger-ui-*.tar.gz
