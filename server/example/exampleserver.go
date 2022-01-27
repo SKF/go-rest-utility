@@ -1,7 +1,6 @@
 package main
 
 import (
-	"embed"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,9 +15,7 @@ import (
 	"go.opencensus.io/plugin/ochttp"
 )
 
-//go:embed docs/*
-//go:embed oas.yaml
-var exampleFS embed.FS
+var exampleFS = os.DirFS(".")
 
 func main() {
 	router := setupRouter()
