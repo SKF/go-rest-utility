@@ -13,8 +13,9 @@ import (
 	"sync"
 	"text/template"
 
-	"github.com/SKF/go-rest-utility/problems"
 	"go.opencensus.io/trace"
+
+	"github.com/SKF/go-rest-utility/problems"
 )
 
 const (
@@ -31,15 +32,14 @@ type SwaggerFS struct {
 
 	NotFoundHandler         http.Handler
 	MethodNotAllowedHandler http.Handler
-
-	initOnce      sync.Once
-	compiledFiles map[string]CompiledFile
 }
 
 type swaggerFSHandler struct {
 	*SwaggerFS
 	*Config
 	pathsToCompile []string
+	initOnce       sync.Once
+	compiledFiles  map[string]CompiledFile
 }
 
 type CompiledFile struct {
@@ -47,8 +47,7 @@ type CompiledFile struct {
 	Info     fs.FileInfo
 }
 
-func (swaggerfs *SwaggerFS) Handler(opts ...Option) *swaggerFSHandler {
-
+func (swaggerfs *SwaggerFS) Handler(opts ...Option) http.Handler {
 	config := &Config{
 		swaggerUIDirectory: swaggerUIDirectory,
 		indexFilePath:      indexFilePath,
@@ -76,8 +75,11 @@ func (swaggerfs *SwaggerFS) Handler(opts ...Option) *swaggerFSHandler {
 		panic("no MethodNotAllowedHandler set")
 	}
 
-	return &swaggerFSHandler{swaggerfs, config, pathsToCompile}
-
+	return &swaggerFSHandler{
+		SwaggerFS:      swaggerfs,
+		Config:         config,
+		pathsToCompile: pathsToCompile,
+	}
 }
 
 func (swagger *swaggerFSHandler) init(r *http.Request) func() {

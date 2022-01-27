@@ -7,12 +7,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/SKF/go-rest-utility/server/gorillamux"
-	"github.com/SKF/go-rest-utility/server/specification"
 	"github.com/SKF/go-utility/v2/log"
-
 	"github.com/gorilla/mux"
 	"go.opencensus.io/plugin/ochttp"
+
+	"github.com/SKF/go-rest-utility/server/gorillamux"
+	"github.com/SKF/go-rest-utility/server/specification"
 )
 
 var exampleFS = os.DirFS(".")
@@ -88,6 +88,7 @@ func SetupSwaggerEndpoints(docsEndpoints, apiEndpoints *mux.Router) error {
 		NotFoundHandler:         gorillamux.NotFoundHandler(),
 		MethodNotAllowedHandler: gorillamux.MethodNotFoundHandler(apiEndpoints),
 	}
+
 	opts := []specification.Option{
 		specification.WithIndexFilePath("docs/index.html"),
 		specification.WithSwaggerUIDirectory("docs"),
