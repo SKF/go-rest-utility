@@ -67,14 +67,6 @@ func (swaggerfs *SwaggerFS) Handler(opts ...Option) http.Handler {
 		panic("no swagger filesystem set")
 	}
 
-	if swaggerfs.NotFoundHandler == nil {
-		panic("no NotFoundHandler set")
-	}
-
-	if swaggerfs.MethodNotAllowedHandler == nil {
-		panic("no MethodNotAllowedHandler set")
-	}
-
 	return &swaggerFSHandler{
 		SwaggerFS:      swaggerfs,
 		Config:         config,
