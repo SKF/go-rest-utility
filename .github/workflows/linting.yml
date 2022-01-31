@@ -23,6 +23,9 @@ jobs:
       - name: ls
         run: ls
 
+      - name: Tidy
+        run: go mod tidy
+
       - name: Run linter
         uses: golangci/golangci-lint-action@v2
         with:
