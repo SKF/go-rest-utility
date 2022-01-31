@@ -7,6 +7,9 @@ import (
 
 	dd_http "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
 
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
+
 	rest "github.com/SKF/go-rest-utility/client"
 	"github.com/SKF/go-rest-utility/client/auth"
 )
@@ -21,13 +24,27 @@ type Node struct {
 }
 
 func main() {
-	identityToken := "eyj..."
+	cfg, err := config.LoadDefaultConfig(
+		context.Background(),
+		config.WithRegion("eu-west-1"),
+		config.WithSharedConfigProfile("hierarchy_playground"),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	provider := &auth.SecretCredentialsTokenProvider{
+		SecretID: "arn:aws:secretsmanager:eu-west-1:633888256817:secret:user-credentials/hierarchy_service",
+		SecretsClient: auth.SecretsManagerV2Client{
+			Client: secretsmanager.NewFromConfig(cfg),
+		},
+	}
 
 	ctx := context.Background()
 
 	client := rest.NewClient(
 		rest.WithBaseURL("https://api.sandbox.hierarchy.enlight.skf.com/"),
-		rest.WithTokenProvider(auth.RawToken(identityToken)),
+		rest.WithTokenProvider(provider),
 		rest.WithDatadogTracing(dd_http.RTWithServiceName("my-example-service")),
 	)
 
