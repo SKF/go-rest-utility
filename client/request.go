@@ -141,6 +141,13 @@ func (r *Request) WithJSONPayload(payload interface{}) *Request {
 	return r
 }
 
+func (r *Request) WithBody(contentType string, payload io.Reader) *Request {
+	r.header.Set(headers.ContentType, contentType)
+	r.body = &jsonPayload{payload: payload}
+
+	return r
+}
+
 // ExpandURL combines the baseURL with the expanded URI template to form the
 // final URL to be used for this Request.
 // If no baseURL is provided the returned URL is just the expanded URI template
