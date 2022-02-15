@@ -141,9 +141,9 @@ func (r *Request) WithJSONPayload(payload interface{}) *Request {
 	return r
 }
 
-func (r *Request) WithBody(contentType string, payload io.Reader) *Request {
+func (r *Request) WithPayload(contentType string, payload io.Reader) *Request {
 	r.header.Set(headers.ContentType, contentType)
-	r.body = &jsonPayload{payload: payload}
+	r.body = payload
 
 	return r
 }
