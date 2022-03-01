@@ -89,7 +89,7 @@ func TestClientDefaultHeader(t *testing.T) {
 
 	client := NewClient(
 		WithBaseURL(srv.URL),
-		WithDefaultHeader("tryDecompressing-Client-ID", "78147f11-62d9-4af0-917d-a0eb26d1c1fc"),
+		WithDefaultHeader("X-Client-ID", "78147f11-62d9-4af0-917d-a0eb26d1c1fc"),
 		WithDefaultHeader("User-Agent", "Custom"),
 	)
 
@@ -106,7 +106,7 @@ func TestClientDefaultHeader(t *testing.T) {
 	require.Equal(t, http.MethodGet, echo.Method)
 	require.Equal(t, "Custom", echo.Header.Get(headers.UserAgent))
 	require.Equal(t, DefaultAcceptEncoding, echo.Header.Get(headers.AcceptEncoding))
-	require.Equal(t, "78147f11-62d9-4af0-917d-a0eb26d1c1fc", echo.Header.Get("tryDecompressing-Client-ID"))
+	require.Equal(t, "78147f11-62d9-4af0-917d-a0eb26d1c1fc", echo.Header.Get("X-Client-ID"))
 }
 
 // newEchoHTTPServer returns a new server which echos back the request as response.

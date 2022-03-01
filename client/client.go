@@ -113,20 +113,20 @@ func (c *Client) prepareResponse(ctx context.Context, resp *http.Response) (*Res
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		reader, err := tryDecompressing(resp)
+		body, err := getDecompressedResponseBody(resp)
 		if err != nil {
 			return nil, fmt.Errorf("decompression attempt failed: %w", err)
 		}
 
 		return nil, newHTTPError(resp.StatusCode).
 			withInstance(resp.Request.URL.String()).
-			withBody(reader)
+			withBody(body)
 	}
 
 	return &Response{*resp}, nil
 }
 
-func tryDecompressing(response *http.Response) (io.ReadCloser, error) {
+func getDecompressedResponseBody(response *http.Response) (io.ReadCloser, error) {
 	switch response.Header.Get(headers.ContentEncoding) {
 	case "gzip":
 		reader, err := gzip.NewReader(response.Body)
