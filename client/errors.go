@@ -78,6 +78,7 @@ func httpErrorFromResponse(ctx context.Context, response *http.Response) HTTPErr
 		return httpError
 	}
 
+	// Assumed to be human readable. Content-type should probably be checked in the future.
 	httpError.Body = string(readBytes)
 
 	return httpError
