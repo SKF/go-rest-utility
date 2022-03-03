@@ -1,9 +1,13 @@
 package client
 
 import (
+	"context"
 	"fmt"
-	"io"
 	"net/http"
+
+	"github.com/SKF/go-utility/v2/log"
+
+	"github.com/SKF/go-rest-utility/client/responsereader"
 )
 
 var (
@@ -58,26 +62,32 @@ type HTTPError struct {
 	Body     string
 }
 
+func httpErrorFromResponse(ctx context.Context, response *http.Response) HTTPError {
+	httpError := HTTPError{
+		StatusCode: response.StatusCode,
+		Status:     http.StatusText(response.StatusCode),
+		Instance:   response.Request.URL.String(),
+	}
+
+	readBytes, err := responsereader.DecompressAndRead(response)
+	if err != nil {
+		log.WithTracing(ctx).WithError(err).Error("failed to read response body while creating http error")
+
+		httpError.Body = "[body couldn't be parsed]"
+
+		return httpError
+	}
+
+	httpError.Body = string(readBytes)
+
+	return httpError
+}
+
 func newHTTPError(statusCode int) HTTPError {
 	return HTTPError{
 		StatusCode: statusCode,
 		Status:     http.StatusText(statusCode),
 	}
-}
-
-func (e HTTPError) withInstance(instance string) HTTPError {
-	e.Instance = instance
-	return e
-}
-
-func (e HTTPError) withBody(reader io.ReadCloser) HTTPError {
-	defer reader.Close()
-
-	if body, err := io.ReadAll(reader); err == nil {
-		e.Body = string(body)
-	}
-
-	return e
 }
 
 func (e HTTPError) Error() string {

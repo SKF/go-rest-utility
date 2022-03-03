@@ -1,8 +1,10 @@
 package client
 
 import (
+	"compress/gzip"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -107,6 +109,45 @@ func TestClientDefaultHeader(t *testing.T) {
 	require.Equal(t, "Custom", echo.Header.Get(headers.UserAgent))
 	require.Equal(t, DefaultAcceptEncoding, echo.Header.Get(headers.AcceptEncoding))
 	require.Equal(t, "78147f11-62d9-4af0-917d-a0eb26d1c1fc", echo.Header.Get("X-Client-ID"))
+}
+
+func TestClientGzippedError(t *testing.T) {
+	srv := newGzipErrorHTTPServer()
+	defer srv.Close()
+
+	request := Post("endpoint").WithJSONPayload(1235)
+
+	client := NewClient(
+		WithBaseURL(srv.URL),
+		WithDefaultHeader("X-Client-ID", "78147f11-62d9-4af0-917d-a0eb26d1c1fc"),
+		WithDefaultHeader("User-Agent", "Custom"),
+	)
+
+	_, err := client.Do(context.Background(), request)
+
+	require.Error(t, err)
+
+	var httpErr HTTPError
+
+	require.True(t, errors.As(err, &httpErr))
+	require.Equal(t, http.StatusInternalServerError, httpErr.StatusCode)
+	require.Equal(t, `{"error": "request failed, as it always will"}`, httpErr.Body)
+}
+
+// newGzipErrorHTTPServer returns a new server which always returns a gzipped 500 error
+func newGzipErrorHTTPServer() *httptest.Server {
+	handler := http.NewServeMux()
+	handler.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
+		rw.Header().Set(headers.ContentEncoding, "gzip")
+		rw.WriteHeader(http.StatusInternalServerError)
+
+		gzipWriter := gzip.NewWriter(rw)
+		defer gzipWriter.Close()
+
+		fmt.Fprintf(gzipWriter, `{"error": "%s"}`, fmt.Errorf("request failed, as it always will"))
+	})
+
+	return httptest.NewServer(handler)
 }
 
 // newEchoHTTPServer returns a new server which echos back the request as response.

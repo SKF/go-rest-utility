@@ -1,33 +1,26 @@
 package client
 
 import (
-	"compress/gzip"
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
-	"github.com/go-http-utils/headers"
+	"github.com/SKF/go-rest-utility/client/responsereader"
 )
 
 type Response struct {
 	http.Response
 }
 
-func (r *Response) Unmarshal(v interface{}) (err error) {
-	reader := r.Body
-
-	switch r.Header.Get(headers.ContentEncoding) {
-	case "gzip":
-		defer reader.Close()
-
-		if reader, err = gzip.NewReader(reader); err != nil {
-			return
-		}
+func (r *Response) Unmarshal(v interface{}) error {
+	readBytes, err := responsereader.DecompressAndRead(&r.Response)
+	if err != nil {
+		return fmt.Errorf("failed to read and decompress response: %w", err)
 	}
 
-	defer reader.Close()
-
-	if err = json.NewDecoder(reader).Decode(&v); err != nil {
-		return
+	if err = json.NewDecoder(bytes.NewReader(readBytes)).Decode(&v); err != nil {
+		return fmt.Errorf("failed to json decode read bytes: %w", err)
 	}
 
 	return nil

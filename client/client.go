@@ -1,10 +1,8 @@
 package client
 
 import (
-	"compress/gzip"
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 
@@ -113,31 +111,8 @@ func (c *Client) prepareResponse(ctx context.Context, resp *http.Response) (*Res
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		body, err := getDecompressedResponseBody(resp)
-		if err != nil {
-			return nil, fmt.Errorf("decompression attempt failed: %w", err)
-		}
-
-		return nil, newHTTPError(resp.StatusCode).
-			withInstance(resp.Request.URL.String()).
-			withBody(body)
+		return nil, httpErrorFromResponse(ctx, resp)
 	}
 
 	return &Response{*resp}, nil
-}
-
-func getDecompressedResponseBody(response *http.Response) (io.ReadCloser, error) {
-	switch response.Header.Get(headers.ContentEncoding) {
-	case "gzip":
-		reader, err := gzip.NewReader(response.Body)
-		if err != nil {
-			return nil, fmt.Errorf("could not interpret response body as a gzip reader: %w", err)
-		}
-
-		_ = response.Body.Close()
-
-		return reader, nil
-	}
-
-	return response.Body, nil
 }
