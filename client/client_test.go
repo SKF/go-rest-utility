@@ -117,11 +117,7 @@ func TestClientGzippedError(t *testing.T) {
 
 	request := Post("endpoint").WithJSONPayload(1235)
 
-	client := NewClient(
-		WithBaseURL(srv.URL),
-		WithDefaultHeader("X-Client-ID", "78147f11-62d9-4af0-917d-a0eb26d1c1fc"),
-		WithDefaultHeader("User-Agent", "Custom"),
-	)
+	client := NewClient(WithBaseURL(srv.URL))
 
 	_, err := client.Do(context.Background(), request)
 
