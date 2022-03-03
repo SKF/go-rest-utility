@@ -101,6 +101,10 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 }
 
 func (c *Client) prepareResponse(ctx context.Context, resp *http.Response) (*Response, error) {
+	if err := DecompressResponse(resp); err != nil {
+		return nil, fmt.Errorf("failed to decompress response: %w", err)
+	}
+
 	if c.problemDecoder != nil && resp.Header.Get(headers.ContentType) == problems.ContentType {
 		problem, err := c.problemDecoder.DecodeProblem(ctx, resp)
 		if err != nil {
@@ -111,7 +115,9 @@ func (c *Client) prepareResponse(ctx context.Context, resp *http.Response) (*Res
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return nil, httpErrorFromResponse(ctx, resp)
+		return nil, newHTTPError(resp.StatusCode).
+			withInstance(resp.Request.URL.String()).
+			withBody(resp.Body)
 	}
 
 	return &Response{*resp}, nil
