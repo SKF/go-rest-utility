@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/go-http-utils/headers"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -48,12 +49,13 @@ func TestDecompressResponse(t *testing.T) {
 		Header:     make(http.Header),
 	}
 
-	err := DecompressResponse(&response)
+	body, header, err := DecompressResponse(response)
 
 	require.NoError(t, err)
-	readBytes, err := ioutil.ReadAll(response.Body)
+	readBytes, err := ioutil.ReadAll(body)
 	require.NoError(t, err)
-	require.Equal(t, `{"foo":"bar"}`, string(readBytes))
+	assert.Equal(t, `{"foo":"bar"}`, string(readBytes))
+	assert.Equal(t, "", header.Get(headers.ContentEncoding))
 }
 
 func TestDecompressResponseGzip(t *testing.T) {
@@ -65,12 +67,13 @@ func TestDecompressResponseGzip(t *testing.T) {
 		Body:       ioutil.NopCloser(gzipString(`{"foo":"bar"}`)),
 		Header:     responseHeader,
 	}
-	err := DecompressResponse(&response)
+	body, header, err := DecompressResponse(response)
 
 	require.NoError(t, err)
-	readBytes, err := ioutil.ReadAll(response.Body)
+	readBytes, err := ioutil.ReadAll(body)
 	require.NoError(t, err)
-	require.Equal(t, `{"foo":"bar"}`, string(readBytes))
+	assert.Equal(t, `{"foo":"bar"}`, string(readBytes))
+	assert.Equal(t, "", header.Get(headers.ContentEncoding))
 }
 
 func TestDecompressResponseGzipInnerBodyIsClosed(t *testing.T) {
@@ -88,7 +91,7 @@ func TestDecompressResponseGzipInnerBodyIsClosed(t *testing.T) {
 		Header:     responseHeader,
 	}
 
-	err := DecompressResponse(&response)
+	_, _, err := DecompressResponse(response)
 	require.NoError(t, err)
 
 	_ = response.Body.Close()
