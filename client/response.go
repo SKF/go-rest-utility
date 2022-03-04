@@ -40,23 +40,23 @@ func (r *GzipReader) Close() error {
 	return r.inner.Close()
 }
 
-func DecompressResponse(response *http.Response) error {
-	switch response.Header.Get(headers.ContentEncoding) {
+// DecompressResponse takes a http response and returns a decompressed
+// http.Body and a set of headers that matches the decompressed result.
+func DecompressResponse(resp http.Response) (io.ReadCloser, http.Header, error) {
+	switch resp.Header.Get(headers.ContentEncoding) {
 	case "gzip":
-		gzipReader, err := gzip.NewReader(response.Body)
+		gzipReader, err := gzip.NewReader(resp.Body)
 		if err != nil {
-			return err
+			return resp.Body, nil, err
 		}
 
-		response.Body = &GzipReader{
+		resp.Header.Del(headers.ContentEncoding)
+
+		return &GzipReader{
 			Reader: gzipReader,
-			inner:  response.Body,
-		}
-
-		response.Header.Del(headers.ContentEncoding)
-
-		return nil
+			inner:  resp.Body,
+		}, resp.Header, nil
 	default:
-		return nil
+		return resp.Body, resp.Header, nil
 	}
 }

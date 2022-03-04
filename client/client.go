@@ -101,7 +101,8 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 }
 
 func (c *Client) prepareResponse(ctx context.Context, resp *http.Response) (*Response, error) {
-	if err := DecompressResponse(resp); err != nil {
+	var err error
+	if resp.Body, resp.Header, err = DecompressResponse(*resp); err != nil {
 		return nil, fmt.Errorf("failed to decompress response: %w", err)
 	}
 
