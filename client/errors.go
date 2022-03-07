@@ -74,6 +74,7 @@ func (e HTTPError) withBody(reader io.ReadCloser) HTTPError {
 	defer reader.Close()
 
 	if body, err := io.ReadAll(reader); err == nil {
+		// Assumed to be human readable. Content-type should probably be checked in the future. Or be changed to bytes.
 		e.Body = string(body)
 	}
 

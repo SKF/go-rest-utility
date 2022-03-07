@@ -101,6 +101,11 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 }
 
 func (c *Client) prepareResponse(ctx context.Context, resp *http.Response) (*Response, error) {
+	var err error
+	if resp.Body, resp.Header, err = DecompressResponse(*resp); err != nil {
+		return nil, fmt.Errorf("failed to decompress response: %w", err)
+	}
+
 	if c.problemDecoder != nil && resp.Header.Get(headers.ContentType) == problems.ContentType {
 		problem, err := c.problemDecoder.DecodeProblem(ctx, resp)
 		if err != nil {
