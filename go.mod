@@ -3,7 +3,7 @@ module github.com/SKF/go-rest-utility
 go 1.17
 
 require (
-	github.com/SKF/go-utility/v2 v2.25.2
+	github.com/SKF/go-utility/v2 v2.27.0
 	github.com/aws/aws-sdk-go v1.35.30
 	github.com/aws/aws-sdk-go-v2/config v1.13.0
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.13.0
@@ -30,7 +30,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.14.0 // indirect
 	github.com/aws/smithy-go v1.10.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect

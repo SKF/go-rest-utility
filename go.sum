@@ -26,8 +26,8 @@ github.com/SKF/go-utility/v2 v2.0.1/go.mod h1:PweUWJgg67c9AYV/OInVGRdVh5gmLc0hZX
 github.com/SKF/go-utility/v2 v2.2.2/go.mod h1:58mYgUJwysqzdcAploXrLQpyjJSsfTjD2C3kzk6pcuQ=
 github.com/SKF/go-utility/v2 v2.12.0/go.mod h1:TB3CTJAXMADRimxbBka6sOA/mrkVmC2lwfXoR/jRJlA=
 github.com/SKF/go-utility/v2 v2.20.0/go.mod h1:VoC6KEYgutG6W8W073Jb8Uwd1MYXaB5sq6Ougkp9gY4=
-github.com/SKF/go-utility/v2 v2.25.2 h1:TcxLD6g6UcMy/zwhkdMxtYyv/Mtf+w/0TEEGIKHfGWk=
-github.com/SKF/go-utility/v2 v2.25.2/go.mod h1:vNsxDA+tBxVW1AuQmCI3GoZu4RNG76bt6as4ZW9rUWw=
+github.com/SKF/go-utility/v2 v2.27.0 h1:NsedFbIY/1Jrf1pbj11MQlLmIahdjKRmAFMf84T8EBY=
+github.com/SKF/go-utility/v2 v2.27.0/go.mod h1:uHFUYZL5p9HYstelDwQBuKV1NzzKS6i5xlV8l2BlFmc=
 github.com/SKF/proto v1.21.0-go/go.mod h1:fLZMzpComrKyD9V74fS1lT4ryHZX9LlYYjM1TmBZw+s=
 github.com/SKF/proto/v2 v2.4.1-go/go.mod h1:l4Wu+tc9SHy8qdecDR0BZCzg/i3+Nn436TjIQzOASTM=
 github.com/SKF/proto/v2 v2.4.3-go/go.mod h1:AJcLizaFZk3BLdqt4QhPgtICUrlZZQ0XLV3/fFALoW0=
@@ -80,7 +80,6 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgraph-io/ristretto v0.0.3/go.mod h1:KPxhHT9ZxKefz+PCeOGsrHpl1qZ7i70dGTu2u+Ahh6E=
-github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2/go.mod h1:SqUrOPUnsFjfmXRMNPybcSiG0BgUW2AuFH8PAnS2iTw=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
@@ -102,6 +101,8 @@ github.com/gofrs/uuid v3.2.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRx
 github.com/gofrs/uuid v4.0.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/gogo/protobuf v1.2.1/go.mod h1:hp+jE20tsWTFYpLwKvXlhS1hjn+gTNwPg2I6zVXpSg4=
 github.com/gogo/protobuf v1.3.0/go.mod h1:SlYgWuQ5SjCEi6WLHjHCa1yvBfUnHcTbrrZtXPKa29o=
+github.com/golang-jwt/jwt/v4 v4.2.0 h1:besgBTC8w8HjP6NzQdxwKH9Z5oQMZ24ThTrHp3cZ8eU=
+github.com/golang-jwt/jwt/v4 v4.2.0/go.mod h1:/xlHOz8bRuivTWchD4jCa+NbatV+wEUSzwAxVc6locg=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
 github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
