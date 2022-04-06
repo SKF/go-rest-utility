@@ -1,6 +1,6 @@
 module github.com/SKF/go-rest-utility
 
-go 1.17
+go 1.18
 
 require (
 	github.com/SKF/go-utility/v2 v2.27.0
