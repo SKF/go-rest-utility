@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/SKF/go-utility/v2 v2.27.0
-	github.com/aws/aws-sdk-go v1.35.30
+	github.com/aws/aws-sdk-go v1.43.33
 	github.com/aws/aws-sdk-go-v2/config v1.13.0
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.13.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
@@ -42,7 +42,7 @@ require (
 	go.uber.org/atomic v1.6.0 // indirect
 	go.uber.org/multierr v1.5.0 // indirect
 	go.uber.org/zap v1.16.0 // indirect
-	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
