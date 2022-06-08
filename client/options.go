@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	oc_http "go.opencensus.io/plugin/ochttp"
 	dd_http "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
@@ -48,6 +49,18 @@ func WithProblemDecoder(decoder ProblemDecoder) Option {
 func WithOpenCensusTracing() Option {
 	return func(c *Client) {
 		c.client.Transport = new(oc_http.Transport)
+	}
+}
+
+// WithTimeout sets http client timeout
+//
+// The default timeout of zero means no timeout.
+//
+// The Client cancels requests to the underlying Transport
+// as if the Request's Context ended.
+func WithTimeout(timeout time.Duration) Option {
+	return func(c *Client) {
+		c.client.Timeout = timeout
 	}
 }
 
