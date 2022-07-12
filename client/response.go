@@ -42,7 +42,13 @@ func (r *GzipReader) Close() error {
 
 // DecompressResponse takes a http response and returns a decompressed
 // http.Body and a set of headers that matches the decompressed result.
+// If the content-length header is 0, return the body and the header
+// without decompressing.
 func DecompressResponse(resp http.Response) (io.ReadCloser, http.Header, error) {
+	if contentLengthHeader := resp.Header.Get(headers.ContentLength); contentLengthHeader == "0" {
+		return resp.Body, resp.Header, nil
+	}
+
 	switch resp.Header.Get(headers.ContentEncoding) {
 	case "gzip":
 		gzipReader, err := gzip.NewReader(resp.Body)
