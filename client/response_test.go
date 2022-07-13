@@ -76,6 +76,25 @@ func TestDecompressResponseGzip(t *testing.T) {
 	assert.Equal(t, "", header.Get(headers.ContentEncoding))
 }
 
+func TestDecompressResponseGzipButContentLengthZero(t *testing.T) {
+	responseHeader := make(http.Header)
+	responseHeader.Set(headers.ContentEncoding, "gzip")
+	responseHeader.Set(headers.ContentLength, "0")
+
+	response := http.Response{ //nolint:bodyclose
+		StatusCode: http.StatusOK,
+		Body:       ioutil.NopCloser(strings.NewReader(``)),
+		Header:     responseHeader,
+	}
+	body, header, err := DecompressResponse(response)
+
+	require.NoError(t, err)
+	readBytes, err := ioutil.ReadAll(body)
+	require.NoError(t, err)
+	assert.Equal(t, ``, string(readBytes))
+	assert.Equal(t, "gzip", header.Get(headers.ContentEncoding))
+}
+
 func TestDecompressResponseGzipInnerBodyIsClosed(t *testing.T) {
 	verifier := ReadCloseVerifier{
 		Reader: gzipString(`{"foo":"bar"}`),
