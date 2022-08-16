@@ -66,7 +66,7 @@ func (c *Client) DoAndUnmarshal(ctx context.Context, r *Request, v interface{}) 
 		return err
 	}
 
-	if response.StatusCode == http.StatusNoContent {
+	if response.StatusCode == http.StatusNoContent || response.ContentLength == 0 {
 		return nil
 	}
 
