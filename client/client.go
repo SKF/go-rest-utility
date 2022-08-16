@@ -66,6 +66,10 @@ func (c *Client) DoAndUnmarshal(ctx context.Context, r *Request, v interface{}) 
 		return err
 	}
 
+	if response.StatusCode == http.StatusNoContent {
+		return nil
+	}
+
 	return response.Unmarshal(v)
 }
 
