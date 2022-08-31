@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"go.opencensus.io/trace"
+	opencensus "go.opencensus.io/trace"
+	datadog "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
 
 // BasicProblem, common fields for most Problems. Useful for embedding into
@@ -69,9 +70,11 @@ func (problem BasicProblem) Error() string {
 func (problem *BasicProblem) DecorateWithRequest(ctx context.Context, r *http.Request) {
 	// Extract the DataDog TraceID from the request context. Same logic can be found in
 	// the go-utility/log package in the WithTracing function.
-	if span := trace.FromContext(ctx); span != nil {
+	if span := opencensus.FromContext(ctx); span != nil {
 		traceID := span.SpanContext().TraceID
 		problem.CorrelationID = strconv.FormatUint(binary.BigEndian.Uint64(traceID[8:]), 10) //nolint:gomnd
+	} else if span, exists := datadog.SpanFromContext(ctx); exists {
+		problem.CorrelationID = strconv.FormatUint(span.Context().TraceID(), 10) //nolint:gomnd
 	}
 
 	problem.Instance = r.URL.String()
