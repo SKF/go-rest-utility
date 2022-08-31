@@ -8,16 +8,16 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.opencensus.io/trace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/mocktracer"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	opencensus "go.opencensus.io/trace"
+	datadog_mock "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/mocktracer"
+	datadog "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
 
 func TestBasicProblemDecorateWithRequest_OpenCensusCorrelationID(t *testing.T) {
-	spanCtx := trace.SpanContext{}
+	spanCtx := opencensus.SpanContext{}
 	binary.BigEndian.PutUint64(spanCtx.TraceID[8:], uint64(3735928559))
 
-	ctx, _ := trace.StartSpanWithRemoteParent(context.Background(), "foo", spanCtx)
+	ctx, _ := opencensus.StartSpanWithRemoteParent(context.Background(), "foo", spanCtx)
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 
 	problem := new(BasicProblem)
@@ -27,11 +27,11 @@ func TestBasicProblemDecorateWithRequest_OpenCensusCorrelationID(t *testing.T) {
 }
 
 func TestBasicProblemDecorateWithRequest_DatadogCorrelationID(t *testing.T) {
-	mt := mocktracer.Start()
+	mt := datadog_mock.Start()
 	defer mt.Stop()
 
-	span := tracer.StartSpan("foo", tracer.WithSpanID(3735928559))
-	ctx := tracer.ContextWithSpan(context.Background(), span)
+	span := datadog.StartSpan("foo", datadog.WithSpanID(3735928559))
+	ctx := datadog.ContextWithSpan(context.Background(), span)
 
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 
