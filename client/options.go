@@ -70,9 +70,10 @@ func WithTimeout(timeout time.Duration) Option {
 // Should be used when you trace your application with Datadog.
 //
 // Note, when used in AWS Lambda, make sure to set the service name.
-// client.WithDatadogTracing(
-//     dd_http.RTWithServiceName("<service_name>"),
-// )
+//
+//	client.WithDatadogTracing(
+//	    dd_http.RTWithServiceName("<service_name>"),
+//	)
 func WithDatadogTracing(opts ...dd_http.RoundTripperOption) Option {
 	resourceNamer := func(req *http.Request) string {
 		return fmt.Sprintf("%s %s", req.Method, req.URL.String())

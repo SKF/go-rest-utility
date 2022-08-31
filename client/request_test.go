@@ -92,6 +92,16 @@ func TestExpandURLWithNoBaseURL(t *testing.T) {
 	require.Equal(t, "https://example.com/endpoint/1", url.String())
 }
 
+func TestExpandURLWithPathAndTrailingSlash(t *testing.T) {
+	baseURL := urlMustParse("https://example.com/path/")
+	request := Get("endpoint")
+
+	url, err := request.ExpandURL(baseURL)
+
+	require.NoError(t, err)
+	require.Equal(t, "https://example.com/path/endpoint", url.String())
+}
+
 func urlMustParse(rawurl string) *url.URL {
 	parsedURL, err := url.Parse(rawurl)
 	if err != nil {
