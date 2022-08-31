@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
@@ -28,7 +27,7 @@ func TestResponseUnmarshalSimple(t *testing.T) {
 	response := Response{
 		Response: http.Response{
 			StatusCode: http.StatusOK,
-			Body:       ioutil.NopCloser(bytes.NewBufferString(`{"foo":"bar"}`)),
+			Body:       io.NopCloser(bytes.NewBufferString(`{"foo":"bar"}`)),
 			Header:     make(http.Header),
 		},
 	}
@@ -45,14 +44,14 @@ func TestResponseUnmarshalSimple(t *testing.T) {
 func TestDecompressResponse(t *testing.T) {
 	response := http.Response{ //nolint:bodyclose
 		StatusCode: http.StatusOK,
-		Body:       ioutil.NopCloser(strings.NewReader(`{"foo":"bar"}`)),
+		Body:       io.NopCloser(strings.NewReader(`{"foo":"bar"}`)),
 		Header:     make(http.Header),
 	}
 
 	body, header, err := DecompressResponse(response)
 
 	require.NoError(t, err)
-	readBytes, err := ioutil.ReadAll(body)
+	readBytes, err := io.ReadAll(body)
 	require.NoError(t, err)
 	assert.Equal(t, `{"foo":"bar"}`, string(readBytes))
 	assert.Equal(t, "", header.Get(headers.ContentEncoding))
@@ -64,13 +63,13 @@ func TestDecompressResponseGzip(t *testing.T) {
 
 	response := http.Response{ //nolint:bodyclose
 		StatusCode: http.StatusOK,
-		Body:       ioutil.NopCloser(gzipString(`{"foo":"bar"}`)),
+		Body:       io.NopCloser(gzipString(`{"foo":"bar"}`)),
 		Header:     responseHeader,
 	}
 	body, header, err := DecompressResponse(response)
 
 	require.NoError(t, err)
-	readBytes, err := ioutil.ReadAll(body)
+	readBytes, err := io.ReadAll(body)
 	require.NoError(t, err)
 	assert.Equal(t, `{"foo":"bar"}`, string(readBytes))
 	assert.Equal(t, "", header.Get(headers.ContentEncoding))
@@ -83,13 +82,13 @@ func TestDecompressResponseGzipButContentLengthZero(t *testing.T) {
 
 	response := http.Response{ //nolint:bodyclose
 		StatusCode: http.StatusOK,
-		Body:       ioutil.NopCloser(strings.NewReader(``)),
+		Body:       io.NopCloser(strings.NewReader(``)),
 		Header:     responseHeader,
 	}
 	body, header, err := DecompressResponse(response)
 
 	require.NoError(t, err)
-	readBytes, err := ioutil.ReadAll(body)
+	readBytes, err := io.ReadAll(body)
 	require.NoError(t, err)
 	assert.Equal(t, ``, string(readBytes))
 	assert.Equal(t, "gzip", header.Get(headers.ContentEncoding))

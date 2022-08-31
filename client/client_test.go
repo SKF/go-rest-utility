@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -152,7 +152,7 @@ func newEchoHTTPServer() *httptest.Server {
 	handler.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
 		var body *string
 		if r.ContentLength != 0 {
-			bytes, err := ioutil.ReadAll(r.Body)
+			bytes, err := io.ReadAll(r.Body)
 			if err != nil {
 				rw.WriteHeader(http.StatusInternalServerError)
 				fmt.Fprintf(rw, `{"error": "%s"}`, err)
