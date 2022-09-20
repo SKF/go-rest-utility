@@ -65,6 +65,14 @@ func encodeToBase64(v interface{}) (string, error) {
 	return buf.String(), nil
 }
 
+type FakeClock struct {
+	Now time.Time
+}
+
+func (fc *FakeClock) Get() time.Time {
+	return fc.Now
+}
+
 type SSO struct {
 	*httptest.Server
 

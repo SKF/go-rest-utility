@@ -113,22 +113,28 @@ func TestCachedTokenProvider_InvalidToken(t *testing.T) {
 	_, err := cached.GetRawToken(context.Background())
 
 	require.Error(t, err)
+	require.ErrorIs(t, err, auth.ErrInvalidToken)
 }
 
 func TestCachedTokenProvider_RefreshAfterTTL(t *testing.T) {
 	t.Parallel()
 
-	lifetime := 1000 * time.Millisecond
-	gracePeriod := 200 * time.Millisecond
+	lifetime := 10 * time.Second
+	gracePeriod := 1 * time.Second
+
+	fc := &FakeClock{
+		Now: time.Now(),
+	}
 
 	expectedToken1 := TestAccessToken{
-		Email:    "john.doe@example.com",
-		Lifetime: lifetime,
+		Email:     "john.doe@example.com",
+		Lifetime:  lifetime,
+		IssueTime: fc.Now,
 	}.Build(t)
 	expectedToken2 := TestAccessToken{
 		Email:     "john.doe@example.com",
 		Lifetime:  lifetime,
-		IssueTime: time.Now().Add(lifetime).Add(-gracePeriod),
+		IssueTime: fc.Now.Add(lifetime).Add(-gracePeriod),
 	}.Build(t)
 
 	ctx := context.Background()
@@ -137,17 +143,22 @@ func TestCachedTokenProvider_RefreshAfterTTL(t *testing.T) {
 	provider.On("GetRawToken", ctx).Return(expectedToken1, nil).Once()
 	provider.On("GetRawToken", ctx).Return(expectedToken2, nil).Once()
 
-	cached := auth.NewCachedTokenProvider(provider).WithGracePeriod(gracePeriod)
+	cached := auth.NewCachedTokenProvider(provider).
+		WithGracePeriod(gracePeriod).
+		WithClock(fc.Get)
 
 	actualToken1, err := cached.GetRawToken(ctx)
 	require.NoError(t, err)
 	require.Equal(t, expectedToken1, actualToken1)
 
+	fc.Now = fc.Now.Add(time.Second)
+
 	actualToken2, err := cached.GetRawToken(ctx)
 	require.NoError(t, err)
 	require.Equal(t, expectedToken1, actualToken2)
 
-	time.Sleep(lifetime - gracePeriod)
+	// Set the current time to within the lifetime of the last token, but within the grace period
+	fc.Now = fc.Now.Add(lifetime).Add(-time.Second).Add(-gracePeriod)
 
 	actualToken3, err := cached.GetRawToken(ctx)
 	require.NoError(t, err)
