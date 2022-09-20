@@ -175,5 +175,14 @@ func newEchoHTTPServer() *httptest.Server {
 		}
 	})
 
+	handler.HandleFunc("/redirect", func(rw http.ResponseWriter, r *http.Request) {
+		to := r.URL.Query().Get("to")
+		if to == "" {
+			to = "/"
+		}
+
+		http.Redirect(rw, r, to, http.StatusFound)
+	})
+
 	return httptest.NewServer(handler)
 }
