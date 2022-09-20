@@ -123,7 +123,7 @@ func (c *Client) prepareResponse(ctx context.Context, resp *http.Response) (*Res
 		return nil, problem
 	}
 
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+	if resp.StatusCode >= http.StatusBadRequest {
 		return nil, newHTTPError(resp.StatusCode).
 			withInstance(resp.Request.URL.String()).
 			withBody(resp.Body)
