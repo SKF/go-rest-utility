@@ -17,9 +17,10 @@ type Request struct {
 	uriTemplate  string
 	uriVariables map[string]interface{}
 
-	method string
-	header http.Header
-	body   io.Reader
+	method          string
+	header          http.Header
+	body            io.Reader
+	followRedirects bool
 }
 
 func NewRequest(method, uriTemplate string) *Request {
@@ -27,9 +28,10 @@ func NewRequest(method, uriTemplate string) *Request {
 		uriTemplate:  uriTemplate,
 		uriVariables: make(map[string]interface{}),
 
-		method: method,
-		header: make(http.Header),
-		body:   http.NoBody,
+		method:          method,
+		header:          make(http.Header),
+		body:            http.NoBody,
+		followRedirects: true,
 	}
 }
 
@@ -144,6 +146,12 @@ func (r *Request) WithJSONPayload(payload interface{}) *Request {
 func (r *Request) WithPayload(contentType string, payload io.Reader) *Request {
 	r.header.Set(headers.ContentType, contentType)
 	r.body = payload
+
+	return r
+}
+
+func (r *Request) WithFollowRedirects(follow bool) *Request {
+	r.followRedirects = follow
 
 	return r
 }

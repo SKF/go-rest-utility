@@ -36,6 +36,8 @@ func NewClient(opts ...Option) *Client {
 		defaultHeaders: make(http.Header),
 	}
 
+	client.client.CheckRedirect = redirectHandler
+
 	client.defaultHeaders.Set(headers.UserAgent, DefaultUserAgent)
 	client.defaultHeaders.Set(headers.AcceptEncoding, DefaultAcceptEncoding)
 
@@ -78,6 +80,8 @@ func (c *Client) prepareRequest(ctx context.Context, req *Request) (*http.Reques
 	if err != nil {
 		return nil, fmt.Errorf("invalid request URL: %w", err)
 	}
+
+	ctx = context.WithValue(ctx, followRedirectsKey, req.followRedirects)
 
 	httpRequest, err := http.NewRequestWithContext(ctx, req.method, url.String(), req.body)
 	if err != nil {
