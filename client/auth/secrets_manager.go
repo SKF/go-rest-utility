@@ -8,6 +8,8 @@ import (
 
 	sm_v2 "github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 	sm_v1 "github.com/aws/aws-sdk-go/service/secretsmanager"
+
+	"github.com/SKF/go-rest-utility/client/retry"
 )
 
 type SecretCredentialsTokenProvider struct {
@@ -16,6 +18,7 @@ type SecretCredentialsTokenProvider struct {
 
 	Client    CredentialsClient
 	TokenType string
+	Retry     retry.BackoffProvider
 
 	sourceProvider *CredentialsTokenProvider
 }
@@ -95,10 +98,12 @@ func (provider *SecretCredentialsTokenProvider) generateSourceProvider(ctx conte
 	}
 
 	return &CredentialsTokenProvider{
-		Username:  secret.Username,
-		Password:  secret.Password,
-		Endpoint:  secret.Endpoint,
+		Username: secret.Username,
+		Password: secret.Password,
+		Endpoint: secret.Endpoint,
+
 		Client:    provider.Client,
 		TokenType: provider.TokenType,
+		Retry:     provider.Retry,
 	}, nil
 }

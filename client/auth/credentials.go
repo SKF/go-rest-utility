@@ -7,6 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/SKF/go-rest-utility/client/retry"
 )
 
 var (
@@ -28,6 +31,7 @@ type CredentialsTokenProvider struct {
 
 	Client    CredentialsClient
 	TokenType string
+	Retry     retry.BackoffProvider
 }
 
 type CredentialsClient interface {
@@ -52,7 +56,12 @@ func (provider *CredentialsTokenProvider) GetRawToken(ctx context.Context) (RawT
 		provider.TokenType = DefaultTokenType
 	}
 
-	response, err := provider.signIn(ctx, SignInRequest{
+	signIn := provider.signIn
+	if provider.Retry != nil {
+		signIn = provider.signInWithRetry
+	}
+
+	response, err := signIn(ctx, SignInRequest{
 		Username: provider.Username,
 		Password: provider.Password,
 	})
@@ -70,6 +79,26 @@ func (provider *CredentialsTokenProvider) GetRawToken(ctx context.Context) (RawT
 	}
 
 	return token, nil
+}
+
+func (provider *CredentialsTokenProvider) signInWithRetry(ctx context.Context, creds SignInRequest) (*SignInResponse, error) {
+	for attempt := 1; ; attempt++ {
+		response, err := provider.signIn(ctx, creds)
+		if err == nil || errors.Is(err, ErrIncorrectCredentials) || errors.Is(err, ErrInactivated) {
+			return response, err
+		}
+
+		backoff, backoffErr := provider.Retry.BackoffByAttempt(attempt)
+		if backoffErr != nil {
+			if errors.Is(backoffErr, retry.ErrBackoffExhausted) {
+				return response, err
+			}
+
+			return response, fmt.Errorf("failed generating retry backoff: %w", backoffErr)
+		}
+
+		time.Sleep(backoff)
+	}
 }
 
 func (provider *CredentialsTokenProvider) signIn(ctx context.Context, creds SignInRequest) (*SignInResponse, error) {
