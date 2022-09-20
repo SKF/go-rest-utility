@@ -1,4 +1,4 @@
-package client
+package client_test
 
 import (
 	"compress/gzip"
@@ -14,6 +14,8 @@ import (
 
 	"github.com/go-http-utils/headers"
 	"github.com/stretchr/testify/require"
+
+	. "github.com/SKF/go-rest-utility/client"
 )
 
 type RequestEcho struct {
