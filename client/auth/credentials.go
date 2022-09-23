@@ -6,7 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"time"
+
+	"github.com/SKF/go-rest-utility/client/retry"
 )
 
 var (
@@ -28,6 +32,7 @@ type CredentialsTokenProvider struct {
 
 	Client    CredentialsClient
 	TokenType string
+	Retry     retry.BackoffProvider
 }
 
 type CredentialsClient interface {
@@ -52,7 +57,12 @@ func (provider *CredentialsTokenProvider) GetRawToken(ctx context.Context) (RawT
 		provider.TokenType = DefaultTokenType
 	}
 
-	response, err := provider.signIn(ctx, SignInRequest{
+	signIn := provider.signIn
+	if provider.Retry != nil {
+		signIn = provider.signInWithRetry
+	}
+
+	response, err := signIn(ctx, SignInRequest{
 		Username: provider.Username,
 		Password: provider.Password,
 	})
@@ -70,6 +80,26 @@ func (provider *CredentialsTokenProvider) GetRawToken(ctx context.Context) (RawT
 	}
 
 	return token, nil
+}
+
+func (provider *CredentialsTokenProvider) signInWithRetry(ctx context.Context, creds SignInRequest) (*SignInResponse, error) {
+	for attempt := 1; ; attempt++ {
+		response, err := provider.signIn(ctx, creds)
+		if err == nil || errors.Is(err, ErrIncorrectCredentials) || errors.Is(err, ErrInactivated) {
+			return response, err
+		}
+
+		backoff, backoffErr := provider.Retry.BackoffByAttempt(attempt)
+		if backoffErr != nil {
+			if errors.Is(backoffErr, retry.ErrBackoffExhausted) {
+				return response, err
+			}
+
+			return response, fmt.Errorf("failed generating retry backoff: %w", backoffErr)
+		}
+
+		time.Sleep(backoff)
+	}
 }
 
 func (provider *CredentialsTokenProvider) signIn(ctx context.Context, creds SignInRequest) (*SignInResponse, error) {
@@ -96,6 +126,15 @@ func (provider *CredentialsTokenProvider) signIn(ctx context.Context, creds Sign
 	}
 
 	defer rs.Body.Close()
+
+	if ct := rs.Header.Get("Content-Type"); ct != "application/json" {
+		body, err := io.ReadAll(rs.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed reading non json response: %w", err)
+		}
+
+		return nil, fmt.Errorf("unexpected content-type: %s %d: %s", ct, rs.StatusCode, body)
+	}
 
 	var response struct {
 		Data  SignInResponse

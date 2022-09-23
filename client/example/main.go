@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	dd_http "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
 
@@ -12,6 +13,7 @@ import (
 
 	rest "github.com/SKF/go-rest-utility/client"
 	"github.com/SKF/go-rest-utility/client/auth"
+	"github.com/SKF/go-rest-utility/client/retry"
 )
 
 type GetNodeResponse struct {
@@ -37,6 +39,11 @@ func main() {
 		SecretID: "arn:aws:secretsmanager:eu-west-1:633888256817:secret:user-credentials/hierarchy_service",
 		SecretsClient: auth.SecretsManagerV2Client{
 			Client: secretsmanager.NewFromConfig(cfg),
+		},
+		Retry: &retry.ExponentialJitterBackoff{
+			Base:        time.Second,
+			Cap:         5 * time.Second, //nolint:gomnd
+			MaxAttempts: 10,              //nolint:gomnd
 		},
 	}
 

@@ -88,6 +88,7 @@ type TestUser struct {
 	Ratelimited bool
 
 	validTokens map[auth.RawToken]bool
+	calls       int
 }
 
 func NewSSO() *SSO {
@@ -115,6 +116,13 @@ func (api *SSO) RequireValidToken(t *testing.T, user string, token auth.RawToken
 	require.Contains(t, api.users[user].validTokens, token)
 }
 
+func (api *SSO) RequireSignInCalls(t *testing.T, user string, expected int) {
+	t.Helper()
+
+	require.Contains(t, api.users, user)
+	require.Equal(t, expected, api.users[user].calls)
+}
+
 func (api *SSO) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var request auth.SignInRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -124,7 +132,13 @@ func (api *SSO) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+
 	user, found := api.users[request.Username]
+	if found {
+		user.calls++
+	}
+
 	if !found || user.Password != request.Password {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprint(w, `{"error":{"message":"incorrect username or password"}}`)
