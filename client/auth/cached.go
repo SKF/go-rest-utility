@@ -12,6 +12,7 @@ const defaultGracePeriod = 10 * time.Minute
 type CachedTokenProvider struct {
 	TokenProvider
 	gracePeriod time.Duration
+	clock       func() time.Time
 
 	m           sync.RWMutex
 	refreshOnce *sync.Once
@@ -29,6 +30,7 @@ func NewCachedTokenProvider(provider TokenProvider) *CachedTokenProvider {
 	return &CachedTokenProvider{
 		TokenProvider: provider,
 		gracePeriod:   defaultGracePeriod,
+		clock:         time.Now,
 		refreshOnce:   new(sync.Once),
 	}
 }
@@ -38,11 +40,16 @@ func (p *CachedTokenProvider) WithGracePeriod(duration time.Duration) *CachedTok
 	return p
 }
 
+func (p *CachedTokenProvider) WithClock(clock func() time.Time) *CachedTokenProvider {
+	p.clock = clock
+	return p
+}
+
 func (p *CachedTokenProvider) GetRawToken(ctx context.Context) (RawToken, error) {
 	p.m.RLock()
 
 	// Is the cached token still alive?
-	if time.Now().Before(p.ttl) {
+	if p.clock().Before(p.ttl) {
 		defer p.m.RUnlock()
 		return p.rawToken, nil
 	}
@@ -58,7 +65,7 @@ func (p *CachedTokenProvider) GetRawToken(ctx context.Context) (RawToken, error)
 		defer p.m.Unlock()
 
 		// This check avoid some scenarios where a double refresh is possible.
-		if !time.Now().Before(p.ttl) {
+		if !p.clock().Before(p.ttl) {
 			p.rawToken, p.ttl, p.supplyError = p.refreshToken(ctx)
 		}
 
