@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -125,6 +126,15 @@ func (provider *CredentialsTokenProvider) signIn(ctx context.Context, creds Sign
 	}
 
 	defer rs.Body.Close()
+
+	if ct := rs.Header.Get("Content-Type"); ct != "application/json" {
+		body, err := io.ReadAll(rs.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed reading non json response: %w", err)
+		}
+
+		return nil, fmt.Errorf("unexpected content-type: %s %d: %s", ct, rs.StatusCode, body)
+	}
 
 	var response struct {
 		Data  SignInResponse
