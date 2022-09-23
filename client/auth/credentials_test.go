@@ -2,6 +2,9 @@ package auth_test
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -134,6 +137,56 @@ func TestCredentialsTokenProvider_UnknownTokenType(t *testing.T) {
 	_, err := provider.GetRawToken(context.Background())
 
 	require.ErrorIs(t, err, auth.ErrUnknownTokenType)
+}
+
+func TestCredentialsTokenProvider_BadContentType(t *testing.T) {
+	t.Parallel()
+
+	sso := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, `<xml></xml>`)
+	}))
+	defer sso.Close()
+
+	provider := auth.CredentialsTokenProvider{
+		Username: "john.doe@example.com",
+		Password: "very-secret",
+		Endpoint: sso.URL,
+	}
+
+	_, err := provider.GetRawToken(context.Background())
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "unexpected content-type")
+	require.Contains(t, err.Error(), `<xml></xml>`)
+}
+
+func TestCredentialsTokenProvider_BadContentTypeWithRetries(t *testing.T) {
+	t.Parallel()
+
+	requestCount := 0
+
+	sso := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, `<xml></xml>`)
+		requestCount++
+	}))
+	defer sso.Close()
+
+	provider := auth.CredentialsTokenProvider{
+		Username: "john.doe@example.com",
+		Password: "very-secret",
+		Endpoint: sso.URL,
+		Retry: &retry.ExponentialJitterBackoff{
+			Base:        time.Millisecond,
+			MaxAttempts: 3,
+		},
+	}
+
+	_, err := provider.GetRawToken(context.Background())
+
+	require.Error(t, err)
+	require.Equal(t, 4, requestCount)
 }
 
 func TestCredentialsTokenProvider_IncorrectCredentialsWithRetries(t *testing.T) {
