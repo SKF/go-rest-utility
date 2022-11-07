@@ -89,3 +89,9 @@ func WithDatadogTracing(opts ...dd_http.RoundTripperOption) Option {
 		)
 	}
 }
+
+func WithCustomTransport(transport http.RoundTripper) Option {
+	return func(c *Client) {
+		c.client.Transport = transport
+	}
+}
