@@ -89,3 +89,13 @@ func WithDatadogTracing(opts ...dd_http.RoundTripperOption) Option {
 		)
 	}
 }
+
+// WithCustomTransport overwrites the default or otherwise configured http.RoundTripper transport
+// on the underlying http.Client.
+//
+// Not that WithOpenCensusTracing also sets a custom http.RoundTripper transport, you may not use both.
+func WithCustomTransport(transport http.RoundTripper) Option {
+	return func(c *Client) {
+		c.client.Transport = transport
+	}
+}
