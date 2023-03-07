@@ -33,10 +33,10 @@ func (problem ValidationProblem) TrimEmpty() Problem {
 
 func (problem ValidationProblem) Error() string {
 	sb := strings.Builder{}
-	sb.WriteString(fmt.Sprintf("%s ", problem.Title))
+	fmt.Fprintf(&sb, "%s ", problem.Title)
 
 	for i, reason := range problem.Reasons {
-		sb.WriteString(fmt.Sprintf("reason(%d): %s; ", i, reason.Error()))
+		fmt.Fprintf(&sb, "%s: %s; ", reason.Name, reason.Error())
 	}
 
 	return sb.String()
