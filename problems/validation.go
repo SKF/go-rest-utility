@@ -36,7 +36,7 @@ func (problem ValidationProblem) Error() string {
 	fmt.Fprintf(&sb, "%s ", problem.Title)
 
 	for _, reason := range problem.Reasons {
-		fmt.Fprintf(&sb, "%s: %s; ", reason.Name, reason.Error())
+		fmt.Fprintf(&sb, "%s: ", reason.Error())
 	}
 
 	return sb.String()
