@@ -1,6 +1,10 @@
 package problems
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+	"strings"
+)
 
 type ValidationProblem struct {
 	BasicProblem
@@ -25,6 +29,17 @@ func (problem ValidationProblem) TrimEmpty() Problem {
 	}
 
 	return problem
+}
+
+func (problem ValidationProblem) Error() string {
+	sb := strings.Builder{}
+	fmt.Fprintf(&sb, "%s ", problem.Title)
+
+	for _, reason := range problem.Reasons {
+		fmt.Fprintf(&sb, "%s, ", reason.Error())
+	}
+
+	return sb.String()
 }
 
 func (problem *ValidationProblem) Errors() (errors []error) {
