@@ -11,7 +11,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/jtacoma/uritemplates v1.0.0
 	github.com/stretchr/testify v1.8.2
-	go.opencensus.io v0.23.0
+	go.opencensus.io v0.24.0
 	gopkg.in/DataDog/dd-trace-go.v1 v1.50.0
 )
 
