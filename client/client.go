@@ -2,13 +2,16 @@ package client
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/go-http-utils/headers"
 
 	"github.com/SKF/go-rest-utility/client/auth"
+	"github.com/SKF/go-rest-utility/client/retry"
 	"github.com/SKF/go-rest-utility/problems"
 )
 
@@ -24,6 +27,7 @@ type Client struct {
 
 	client         *http.Client
 	defaultHeaders http.Header
+	retry          retry.BackoffProvider
 }
 
 // NewClient will create a new REST Client.
@@ -54,12 +58,27 @@ func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 		return nil, err
 	}
 
-	httpResponse, err := c.client.Do(httpRequest)
-	if err != nil {
-		return nil, fmt.Errorf("unable to perform http request: %w", err)
-	}
+	for attempt := 1; ; attempt++ {
+		httpResponse, err := c.client.Do(httpRequest)
+		if err != nil {
+			return nil, fmt.Errorf("unable to perform HTTP request: %w", err)
+		}
 
-	return c.prepareResponse(ctx, httpResponse)
+		if c.retry == nil || httpResponse.StatusCode < 500 {
+			return c.prepareResponse(ctx, httpResponse)
+		}
+
+		backoff, backoffErr := c.retry.BackoffByAttempt(attempt)
+		if backoffErr != nil {
+			if errors.Is(backoffErr, retry.ErrBackoffExhausted) {
+				return nil, err
+			}
+
+			return nil, fmt.Errorf("failed generating retry backoff: %w", backoffErr)
+		}
+
+		time.Sleep(backoff)
+	}
 }
 
 func (c *Client) DoAndUnmarshal(ctx context.Context, r *Request, v interface{}) error {

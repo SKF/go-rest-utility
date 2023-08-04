@@ -11,11 +11,14 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-http-utils/headers"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	. "github.com/SKF/go-rest-utility/client"
+	"github.com/SKF/go-rest-utility/client/retry"
 )
 
 type RequestEcho struct {
@@ -130,6 +133,68 @@ func TestClientGzippedError(t *testing.T) {
 	require.True(t, errors.As(err, &httpErr))
 	require.Equal(t, http.StatusInternalServerError, httpErr.StatusCode)
 	require.Equal(t, `{"error": "request failed, as it always will"}`, httpErr.Body)
+}
+
+func TestClientWithoutRetry(t *testing.T) {
+	requests := 0
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusGatewayTimeout)
+
+		requests++
+	}))
+	defer srv.Close()
+
+	client := NewClient(WithBaseURL(srv.URL))
+
+	request := Get("/")
+
+	_, err := client.Do(context.Background(), request)
+	require.Error(t, err)
+
+	assert.Equal(t, 1, requests)
+
+	var httpError HTTPError
+
+	if assert.ErrorAs(t, err, &httpError) {
+		assert.Equal(t, http.StatusGatewayTimeout, httpError.StatusCode)
+	}
+}
+
+func TestClientRetry(t *testing.T) {
+	var (
+		requests  = 0
+		responses = []int{
+			http.StatusBadGateway,
+			http.StatusInternalServerError,
+			http.StatusGatewayTimeout,
+			http.StatusOK,
+		}
+	)
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(responses[requests])
+
+		requests++
+	}))
+	defer srv.Close()
+
+	client := NewClient(
+		WithBaseURL(srv.URL),
+		WithRetry(&retry.ExponentialJitterBackoff{
+			Base:        50 * time.Millisecond, //nolint:gomnd
+			Cap:         1 * time.Second,       //nolint:gomnd
+			MaxAttempts: 10,                    //nolint:gomnd
+		}),
+	)
+
+	request := Get("/")
+
+	response, err := client.Do(context.Background(), request)
+	require.NoError(t, err)
+
+	assert.Equal(t, len(responses), requests)
+	assert.Equal(t, http.StatusOK, response.StatusCode)
 }
 
 // newGzipErrorHTTPServer returns a new server which always returns a gzipped 500 error

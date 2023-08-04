@@ -10,6 +10,7 @@ import (
 	dd_http "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
 
 	"github.com/SKF/go-rest-utility/client/auth"
+	"github.com/SKF/go-rest-utility/client/retry"
 )
 
 type Option func(*Client)
@@ -93,9 +94,25 @@ func WithDatadogTracing(opts ...dd_http.RoundTripperOption) Option {
 // WithCustomTransport overwrites the default or otherwise configured http.RoundTripper transport
 // on the underlying http.Client.
 //
-// Not that WithOpenCensusTracing also sets a custom http.RoundTripper transport, you may not use both.
+// Note that WithOpenCensusTracing also sets a custom http.RoundTripper transport, you may not use both.
 func WithCustomTransport(transport http.RoundTripper) Option {
 	return func(c *Client) {
 		c.client.Transport = transport
+	}
+}
+
+// WithRetry sets a retrier for the client. When set it will be used to
+// retry any calls that result in a response status code >= 500.
+//
+//	client := NewClient(
+//		WithRetry(&retry.ExponentialJitterBackoff{
+//			Base:        500 * time.Millisecond,
+//			Cap:         30 * time.Second,
+//			MaxAttempts: 30,
+//		}),
+//	)
+func WithRetry(retrier retry.BackoffProvider) Option {
+	return func(c *Client) {
+		c.retry = retrier
 	}
 }
