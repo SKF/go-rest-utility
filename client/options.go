@@ -101,18 +101,18 @@ func WithCustomTransport(transport http.RoundTripper) Option {
 	}
 }
 
-// WithRetry sets a retrier for the client. When set it will be used to
-// retry any calls that result in a response status code >= 500.
+// WithBackoff sets a backoff provider for the client. When set it will be used to
+// sleep before any calls are retried.
 //
 //	client := NewClient(
-//		WithRetry(&retry.ExponentialJitterBackoff{
+//		WithBackoff(&retry.ExponentialJitterBackoff{
 //			Base:        500 * time.Millisecond,
 //			Cap:         30 * time.Second,
 //			MaxAttempts: 30,
 //		}),
 //	)
-func WithRetry(retrier retry.BackoffProvider) Option {
+func WithBackoff(backoff retry.BackoffProvider) Option {
 	return func(c *Client) {
-		c.retry = retrier
+		c.backoff = backoff
 	}
 }

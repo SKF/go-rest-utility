@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -27,7 +26,7 @@ type Client struct {
 
 	client         *http.Client
 	defaultHeaders http.Header
-	retry          retry.BackoffProvider
+	backoff        retry.BackoffProvider
 }
 
 // NewClient will create a new REST Client.
@@ -64,20 +63,18 @@ func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 			return nil, fmt.Errorf("unable to perform HTTP request: %w", err)
 		}
 
-		if c.retry == nil || httpResponse.StatusCode < 500 {
+		if r.retryDecider == nil || !r.retryDecider(httpRequest, httpResponse, attempt) {
 			return c.prepareResponse(ctx, httpResponse)
 		}
 
-		backoff, backoffErr := c.retry.BackoffByAttempt(attempt)
-		if backoffErr != nil {
-			if errors.Is(backoffErr, retry.ErrBackoffExhausted) {
-				return nil, err
+		if c.backoff != nil {
+			duration, backoffErr := c.backoff.BackoffByAttempt(attempt)
+			if err != nil {
+				return nil, fmt.Errorf("failed generating retry backoff: %w", backoffErr)
 			}
 
-			return nil, fmt.Errorf("failed generating retry backoff: %w", backoffErr)
+			time.Sleep(duration)
 		}
-
-		time.Sleep(backoff)
 	}
 }
 

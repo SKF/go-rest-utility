@@ -13,6 +13,18 @@ import (
 	"github.com/jtacoma/uritemplates"
 )
 
+// RetryDecider is a function which returns whether or not a retry should be
+// performed. When true is returned the client should retry the call.
+//
+//	decider := func(r *http.Request, resp *http.Response, attempt int) bool {
+//		if httpRequest.Method != "GET" {
+//			return false
+//		}
+//
+//		return resp.StatusCode >= http.StatusInternalServerError
+//	}
+type RetryDecider func(*http.Request, *http.Response, int) bool
+
 type Request struct {
 	uriTemplate  string
 	uriVariables map[string]interface{}
@@ -21,6 +33,7 @@ type Request struct {
 	header          http.Header
 	body            io.Reader
 	followRedirects bool
+	retryDecider    RetryDecider
 }
 
 func NewRequest(method, uriTemplate string) *Request {
@@ -33,6 +46,11 @@ func NewRequest(method, uriTemplate string) *Request {
 		body:            http.NoBody,
 		followRedirects: true,
 	}
+}
+
+func (r *Request) Retry(retrier RetryDecider) *Request {
+	r.retryDecider = retrier
+	return r
 }
 
 func Get(uriTemplate string) *Request {

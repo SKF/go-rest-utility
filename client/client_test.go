@@ -168,6 +168,8 @@ func TestClientRetry(t *testing.T) {
 			http.StatusBadGateway,
 			http.StatusInternalServerError,
 			http.StatusGatewayTimeout,
+			http.StatusServiceUnavailable,
+			http.StatusTooManyRequests,
 			http.StatusOK,
 		}
 	)
@@ -181,14 +183,21 @@ func TestClientRetry(t *testing.T) {
 
 	client := NewClient(
 		WithBaseURL(srv.URL),
-		WithRetry(&retry.ExponentialJitterBackoff{
-			Base:        50 * time.Millisecond, //nolint:gomnd
-			Cap:         1 * time.Second,       //nolint:gomnd
+		WithBackoff(&retry.ExponentialJitterBackoff{
+			Base:        1 * time.Millisecond,  //nolint:gomnd
+			Cap:         50 * time.Millisecond, //nolint:gomnd
 			MaxAttempts: 10,                    //nolint:gomnd
 		}),
 	)
 
-	request := Get("/")
+	request := Get("/").Retry(func(req *http.Request, resp *http.Response, attempt int) bool {
+		if req.Method != "GET" {
+			return false
+		}
+
+		return resp.StatusCode == http.StatusTooManyRequests ||
+			resp.StatusCode >= http.StatusInternalServerError
+	})
 
 	response, err := client.Do(context.Background(), request)
 	require.NoError(t, err)
