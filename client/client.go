@@ -10,7 +10,6 @@ import (
 	"github.com/go-http-utils/headers"
 
 	"github.com/SKF/go-rest-utility/client/auth"
-	"github.com/SKF/go-rest-utility/client/retry"
 	"github.com/SKF/go-rest-utility/problems"
 )
 
@@ -26,7 +25,6 @@ type Client struct {
 
 	client         *http.Client
 	defaultHeaders http.Header
-	backoff        retry.BackoffProvider
 }
 
 // NewClient will create a new REST Client.

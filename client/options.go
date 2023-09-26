@@ -10,7 +10,6 @@ import (
 	dd_http "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
 
 	"github.com/SKF/go-rest-utility/client/auth"
-	"github.com/SKF/go-rest-utility/client/retry"
 )
 
 type Option func(*Client)
@@ -98,21 +97,5 @@ func WithDatadogTracing(opts ...dd_http.RoundTripperOption) Option {
 func WithCustomTransport(transport http.RoundTripper) Option {
 	return func(c *Client) {
 		c.client.Transport = transport
-	}
-}
-
-// WithBackoff sets a backoff provider for the client. When set it will be used to
-// sleep before any calls are retried.
-//
-//	client := NewClient(
-//		WithBackoff(&retry.ExponentialJitterBackoff{
-//			Base:        500 * time.Millisecond,
-//			Cap:         30 * time.Second,
-//			MaxAttempts: 30,
-//		}),
-//	)
-func WithBackoff(backoff retry.BackoffProvider) Option {
-	return func(c *Client) {
-		c.backoff = backoff
 	}
 }
