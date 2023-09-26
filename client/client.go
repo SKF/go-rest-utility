@@ -63,18 +63,25 @@ func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 			return nil, fmt.Errorf("unable to perform HTTP request: %w", err)
 		}
 
-		if r.retryDecider == nil || !r.retryDecider(httpRequest, httpResponse, attempt) {
+		if r.retrier == nil || !r.retrier.Should(httpRequest, httpResponse) {
 			return c.prepareResponse(ctx, httpResponse)
 		}
 
-		if c.backoff != nil {
-			duration, backoffErr := c.backoff.BackoffByAttempt(attempt)
-			if err != nil {
-				return nil, fmt.Errorf("failed generating retry backoff: %w", backoffErr)
-			}
-
-			time.Sleep(duration)
+		backoff, backoffErr := r.retrier.Backoff(httpResponse, attempt)
+		if backoffErr != nil {
+			return nil, fmt.Errorf("failed generating retry backoff: %w", backoffErr)
 		}
+
+		t := time.NewTimer(backoff)
+
+		select {
+		case <-httpRequest.Context().Done():
+			t.Stop()
+			return nil, httpRequest.Context().Err()
+		case <-t.C:
+		}
+
+		t.Stop()
 	}
 }
 

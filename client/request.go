@@ -9,21 +9,10 @@ import (
 	"net/url"
 	"reflect"
 
+	"github.com/SKF/go-rest-utility/client/retry"
 	"github.com/go-http-utils/headers"
 	"github.com/jtacoma/uritemplates"
 )
-
-// RetryDecider is a function which returns whether or not a retry should be
-// performed. When true is returned the client should retry the call.
-//
-//	decider := func(r *http.Request, resp *http.Response, attempt int) bool {
-//		if httpRequest.Method != "GET" {
-//			return false
-//		}
-//
-//		return resp.StatusCode >= http.StatusInternalServerError
-//	}
-type RetryDecider func(*http.Request, *http.Response, int) bool
 
 type Request struct {
 	uriTemplate  string
@@ -33,7 +22,7 @@ type Request struct {
 	header          http.Header
 	body            io.Reader
 	followRedirects bool
-	retryDecider    RetryDecider
+	retrier         retry.Provider
 }
 
 func NewRequest(method, uriTemplate string) *Request {
@@ -48,8 +37,8 @@ func NewRequest(method, uriTemplate string) *Request {
 	}
 }
 
-func (r *Request) Retry(retrier RetryDecider) *Request {
-	r.retryDecider = retrier
+func (r *Request) Retry(retrier retry.Provider) *Request {
+	r.retrier = retrier
 	return r
 }
 

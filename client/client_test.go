@@ -11,7 +11,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/go-http-utils/headers"
 	"github.com/stretchr/testify/assert"
@@ -183,21 +182,9 @@ func TestClientRetry(t *testing.T) {
 
 	client := NewClient(
 		WithBaseURL(srv.URL),
-		WithBackoff(&retry.ExponentialJitterBackoff{
-			Base:        1 * time.Millisecond,  //nolint:gomnd
-			Cap:         50 * time.Millisecond, //nolint:gomnd
-			MaxAttempts: 10,                    //nolint:gomnd
-		}),
 	)
 
-	request := Get("/").Retry(func(req *http.Request, resp *http.Response, attempt int) bool {
-		if req.Method != "GET" {
-			return false
-		}
-
-		return resp.StatusCode == http.StatusTooManyRequests ||
-			resp.StatusCode >= http.StatusInternalServerError
-	})
+	request := Get("/").Retry(retry.NewDefaultRetryProvider())
 
 	response, err := client.Do(context.Background(), request)
 	require.NoError(t, err)
