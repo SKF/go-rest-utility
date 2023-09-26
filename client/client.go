@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/go-http-utils/headers"
 
@@ -54,12 +55,32 @@ func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 		return nil, err
 	}
 
-	httpResponse, err := c.client.Do(httpRequest)
-	if err != nil {
-		return nil, fmt.Errorf("unable to perform http request: %w", err)
-	}
+	for attempt := 1; ; attempt++ {
+		httpResponse, err := c.client.Do(httpRequest)
+		if err != nil {
+			return nil, fmt.Errorf("unable to perform HTTP request: %w", err)
+		}
 
-	return c.prepareResponse(ctx, httpResponse)
+		if r.retrier == nil || !r.retrier.Should(httpRequest, httpResponse) {
+			return c.prepareResponse(ctx, httpResponse)
+		}
+
+		backoff, backoffErr := r.retrier.Backoff(httpResponse, attempt)
+		if backoffErr != nil {
+			return nil, fmt.Errorf("failed generating retry backoff: %w", backoffErr)
+		}
+
+		t := time.NewTimer(backoff)
+
+		select {
+		case <-httpRequest.Context().Done():
+			t.Stop()
+			return nil, httpRequest.Context().Err()
+		case <-t.C:
+		}
+
+		t.Stop()
+	}
 }
 
 func (c *Client) DoAndUnmarshal(ctx context.Context, r *Request, v interface{}) error {

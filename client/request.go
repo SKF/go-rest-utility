@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"reflect"
 
+	"github.com/SKF/go-rest-utility/client/retry"
 	"github.com/go-http-utils/headers"
 	"github.com/jtacoma/uritemplates"
 )
@@ -21,6 +22,7 @@ type Request struct {
 	header          http.Header
 	body            io.Reader
 	followRedirects bool
+	retrier         retry.Provider
 }
 
 func NewRequest(method, uriTemplate string) *Request {
@@ -33,6 +35,11 @@ func NewRequest(method, uriTemplate string) *Request {
 		body:            http.NoBody,
 		followRedirects: true,
 	}
+}
+
+func (r *Request) Retry(retrier retry.Provider) *Request {
+	r.retrier = retrier
+	return r
 }
 
 func Get(uriTemplate string) *Request {
