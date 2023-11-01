@@ -4,9 +4,7 @@ INSTALL ?= install
 SED ?= sed
 ECHO ?= echo
 
-SWAGGER_UI_VERSION ?= 3.38.0
-
-.PHONY: help
+SWAGGER_UI_VERSION ?= 5.9.1
 
 all: docs
 
@@ -31,7 +29,7 @@ docs: swagger-ui-${SWAGGER_UI_VERSION}.tar.gz docs/service.yaml
 # Remove unnecessary files (removes ~90% of extracted size).
 	cd docs && $(RM) $@*.map $@*-es-bundle*.js $@swagger-ui.js
 # Insert location of OpenAPI spec to be rendered.
-	$(SED) -i 's|url: "[^"]*",|url: "{{.EndpointBaseURL}}/docs/swagger/service.yaml",|g' "docs/index.html"
+	$(SED) -i 's|url: "[^"]*",|url: "{{.EndpointBaseURL}}/docs/swagger/service.yaml",|g' "docs/swagger-initializer.js"
 # Add goembed FS
 
 
