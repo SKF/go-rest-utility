@@ -49,7 +49,7 @@ func NewClient(opts ...Option) *Client {
 }
 
 // Do Executes the http request, don't forget to
-// call response.Close() if no errors is returned
+// call response.Close() if no error is returned
 func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 	httpRequest, err := c.prepareRequest(ctx, r)
 	if err != nil {
