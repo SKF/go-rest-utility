@@ -60,6 +60,7 @@ func main() {
 		SetHeader("Accept", "application/json")
 
 	node := GetNodeResponse{}
+
 	err = client.DoAndUnmarshal(ctx, request, &node)
 	if err != nil {
 		log.Fatal(err)

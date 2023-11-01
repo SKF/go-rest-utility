@@ -49,7 +49,7 @@ func NewClient(opts ...Option) *Client {
 }
 
 // Do Executes the http request, don't forget to
-// call response.ReallyClose() if no errors is returned
+// call response.Close() if no errors is returned
 func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 	httpRequest, err := c.prepareRequest(ctx, r)
 	if err != nil {
@@ -70,7 +70,7 @@ func (c *Client) DoAndUnmarshal(ctx context.Context, r *Request, v interface{}) 
 		return err
 	}
 
-	defer response.ReallyClose()
+	defer response.Close()
 
 	if response.StatusCode == http.StatusNoContent || response.ContentLength == 0 {
 		return nil
