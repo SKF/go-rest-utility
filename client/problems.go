@@ -15,7 +15,7 @@ type ProblemDecoder interface {
 
 type BasicProblemDecoder struct{}
 
-func (d *BasicProblemDecoder) DecodeProblem(ctx context.Context, resp *http.Response) (problems.Problem, error) {
+func (d *BasicProblemDecoder) DecodeProblem(_ context.Context, resp *http.Response) (problems.Problem, error) {
 	defer resp.Body.Close()
 
 	problem := problems.BasicProblem{}

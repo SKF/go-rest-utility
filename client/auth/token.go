@@ -41,7 +41,7 @@ func (token RawToken) ParseExpires() (time.Time, error) {
 	return time.Unix(claims.Exp, 0), nil
 }
 
-func (token RawToken) GetRawToken(ctx context.Context) (RawToken, error) {
+func (token RawToken) GetRawToken(_ context.Context) (RawToken, error) {
 	return token, nil
 }
 

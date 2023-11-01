@@ -64,6 +64,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if response.Close {
+		defer response.Body.Close()
+	}
+
 	node := GetNodeResponse{}
 	if err := response.Unmarshal(&node); err != nil {
 		log.Fatal(err)

@@ -48,13 +48,14 @@ func NewClient(opts ...Option) *Client {
 	return client
 }
 
+// Do Executes the http request, don't forget to close the response body
 func (c *Client) Do(ctx context.Context, r *Request) (*Response, error) {
 	httpRequest, err := c.prepareRequest(ctx, r)
 	if err != nil {
 		return nil, err
 	}
 
-	httpResponse, err := c.client.Do(httpRequest)
+	httpResponse, err := c.client.Do(httpRequest) //nolint: bodyclose
 	if err != nil {
 		return nil, fmt.Errorf("unable to perform http request: %w", err)
 	}
@@ -66,6 +67,10 @@ func (c *Client) DoAndUnmarshal(ctx context.Context, r *Request, v interface{}) 
 	response, err := c.Do(ctx, r)
 	if err != nil {
 		return err
+	}
+
+	if response.Close {
+		defer response.Body.Close()
 	}
 
 	if response.StatusCode == http.StatusNoContent || response.ContentLength == 0 {
