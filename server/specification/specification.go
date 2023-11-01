@@ -62,6 +62,7 @@ func (swaggerfs *SwaggerFS) Handler(opts ...Option) http.Handler {
 		config.indexFilePath,
 		config.openAPIPath,
 	}
+
 	if config.swaggerInit != nil {
 		pathsToCompile = append(pathsToCompile, *config.swaggerInit)
 
