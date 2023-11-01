@@ -15,11 +15,19 @@ type Response struct {
 }
 
 func (r *Response) Unmarshal(v interface{}) error {
+	defer r.ReallyClose()
+
 	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
 		return fmt.Errorf("failed to json decode read bytes: %w", err)
 	}
 
 	return nil
+}
+
+// ReallyClose reads all of the stream and closes is to make sure that tcp connections can be reused properly
+func (r *Response) ReallyClose() {
+	io.Copy(io.Discard, r.Body)
+	r.Body.Close()
 }
 
 type GzipReader struct {
