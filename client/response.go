@@ -26,10 +26,13 @@ func (r *Response) Unmarshal(v interface{}) error {
 
 // Close reads all of the body stream and closes it to make sure that tcp connections can be reused properly
 func (r *Response) Close() error {
-	io.Copy(io.Discard, r.Body) //nolint: errcheck
-	r.Body.Close()
+	if _, err := io.Copy(io.Discard, r.Body); err != nil {
+		r.Body.Close() // nolint: errcheck
 
-	return nil
+		return err
+	}
+
+	return r.Body.Close()
 }
 
 type GzipReader struct {
