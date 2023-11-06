@@ -63,6 +63,10 @@ func (swaggerfs *SwaggerFS) Handler(opts ...Option) http.Handler {
 		config.openAPIPath,
 	}
 
+	if config.swaggerInit != nil {
+		pathsToCompile = append(pathsToCompile, *config.swaggerInit)
+	}
+
 	if swaggerfs.FS == nil {
 		panic("no swagger filesystem set")
 	}

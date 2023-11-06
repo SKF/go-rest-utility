@@ -93,6 +93,7 @@ func SetupSwaggerEndpoints(docsEndpoints, apiEndpoints *mux.Router) error {
 		specification.WithIndexFilePath("docs/index.html"),
 		specification.WithSwaggerUIDirectory("docs"),
 		specification.WithOpenAPIPath("oas.yaml"),
+		specification.WithSwaggerInitJSPath("docs/swagger-initializer.js"),
 	}
 	route.Handler(swaggerFS.Handler(opts...))
 
