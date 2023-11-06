@@ -15,7 +15,7 @@ import (
 	"github.com/go-http-utils/headers"
 	"github.com/stretchr/testify/require"
 
-	. "github.com/SKF/go-rest-utility/client"
+	. "github.com/SKF/go-rest-utility/client" // nolint: revive
 )
 
 type RequestEcho struct {

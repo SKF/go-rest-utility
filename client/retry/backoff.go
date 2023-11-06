@@ -53,8 +53,8 @@ func (provider *ExponentialJitterBackoff) BackoffByAttempt(attempts int) (time.D
 		backoff = MaxBackoff
 	}
 
-	if cap := int64(provider.Cap); cap > 0 && backoff > cap {
-		backoff = cap
+	if Cap := int64(provider.Cap); Cap > 0 && backoff > Cap {
+		backoff = Cap
 	}
 
 	jitteredBackoff, err := rand.Int(provider.JitterSource, big.NewInt(backoff))

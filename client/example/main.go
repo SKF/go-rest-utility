@@ -59,13 +59,10 @@ func main() {
 		Assign("id", "df3214a6-2db7-11e8-b467-0ed5f89f718b").
 		SetHeader("Accept", "application/json")
 
-	response, err := client.Do(ctx, request)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	node := GetNodeResponse{}
-	if err := response.Unmarshal(&node); err != nil {
+
+	err = client.DoAndUnmarshal(ctx, request, &node)
+	if err != nil {
 		log.Fatal(err)
 	}
 
