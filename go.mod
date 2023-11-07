@@ -12,7 +12,7 @@ require (
 	github.com/jtacoma/uritemplates v1.0.0
 	github.com/stretchr/testify v1.8.4
 	go.opencensus.io v0.24.0
-	gopkg.in/DataDog/dd-trace-go.v1 v1.56.1
+	gopkg.in/DataDog/dd-trace-go.v1 v1.57.0
 )
 
 require (
