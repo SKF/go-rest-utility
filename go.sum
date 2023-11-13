@@ -23,8 +23,8 @@ github.com/SKF/go-enlight-middleware v0.8.7 h1:T5YXiqcqGb/PQiq5TF1Qez639ONK3vkYa
 github.com/SKF/go-enlight-middleware v0.8.7/go.mod h1:SfjU+ekfqcd341hJ+u9SqYoEGKbDMrF+wTGBWNi0SqA=
 github.com/SKF/go-utility/v2 v2.33.17 h1:ziaKDpHNR7MZQPb4shho+cqUxioJHScU5PgRE4yez0E=
 github.com/SKF/go-utility/v2 v2.33.17/go.mod h1:hqnoxmyE35M3X7RECOz9C01EVBmJ/kiQZ9SYMRXccaQ=
-github.com/aws/aws-sdk-go v1.47.1 h1:j9ih0Ashcw8tQcnfqNimBM8ARQ/CMpoBwjKue1D6Fuk=
-github.com/aws/aws-sdk-go v1.47.1/go.mod h1:LF8svs817+Nz+DmiMQKTO3ubZ/6IaTpq3TjupRn3Eqk=
+github.com/aws/aws-sdk-go v1.47.9 h1:rarTsos0mA16q+huicGx0e560aYRtOucV5z2Mw23JRY=
+github.com/aws/aws-sdk-go v1.47.9/go.mod h1:LF8svs817+Nz+DmiMQKTO3ubZ/6IaTpq3TjupRn3Eqk=
 github.com/aws/aws-sdk-go-v2 v1.22.1 h1:sjnni/AuoTXxHitsIdT0FwmqUuNUuHtufcVDErVFT9U=
 github.com/aws/aws-sdk-go-v2 v1.22.1/go.mod h1:Kd0OJtkW3Q0M0lUWGszapWjEvrXDzRW+D21JNsroB+c=
 github.com/aws/aws-sdk-go-v2/config v1.21.0 h1:BZEX5S6hkrAJ9rJn2hEMWIMkg+l1RC7gBQ84qkb0Cp0=
