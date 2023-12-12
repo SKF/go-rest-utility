@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/SKF/go-utility/v2 v2.33.17
-	github.com/aws/aws-sdk-go v1.47.1
+	github.com/aws/aws-sdk-go v1.49.0
 	github.com/aws/aws-sdk-go-v2/config v1.21.0
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.23.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
