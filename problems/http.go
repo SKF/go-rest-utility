@@ -28,7 +28,9 @@ func WriteResponse(ctx context.Context, err error, w http.ResponseWriter, r *htt
 	statusCode := problem.ProblemStatus()
 
 	var allProblemFields map[string]interface{}
-	marshaledProblem, _ := json.Marshal(problem)        // nolint: errcheck
+
+	marshaledProblem, _ := json.Marshal(problem) // nolint: errcheck
+
 	json.Unmarshal(marshaledProblem, &allProblemFields) // nolint: errcheck
 
 	l := log.
