@@ -168,7 +168,9 @@ func TestCredentialsTokenProvider_BadContentTypeWithRetries(t *testing.T) {
 
 	sso := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
+
 		fmt.Fprint(w, `<xml></xml>`)
+
 		requestCount++
 	}))
 	defer sso.Close()

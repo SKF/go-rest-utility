@@ -16,12 +16,14 @@ func MethodNotFoundHandler(router *mux.Router) http.HandlerFunc {
 
 		router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error { //nolint: errcheck
 			var match mux.RouteMatch
+
 			matched := route.Match(r, &match)
 			if matched || match.MatchErr == mux.ErrMethodMismatch {
 				if methods, err := route.GetMethods(); err == nil {
 					allowedMethods = append(allowedMethods, methods...)
 				}
 			}
+
 			return nil
 		})
 

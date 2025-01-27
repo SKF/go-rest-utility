@@ -153,6 +153,7 @@ func newEchoHTTPServer() *httptest.Server {
 	handler := http.NewServeMux()
 	handler.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
 		var body *string
+
 		if r.ContentLength != 0 {
 			bytes, err := io.ReadAll(r.Body)
 			if err != nil {
