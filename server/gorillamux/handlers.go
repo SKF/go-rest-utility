@@ -14,7 +14,7 @@ func MethodNotFoundHandler(router *mux.Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowedMethods := []string{}
 
-		router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error { //nolint: errcheck
+		router.Walk(func(route *mux.Route, _ *mux.Router, _ []*mux.Route) error { //nolint: errcheck
 			var match mux.RouteMatch
 
 			matched := route.Match(r, &match)

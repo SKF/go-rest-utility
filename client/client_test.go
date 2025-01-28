@@ -135,7 +135,7 @@ func TestClientGzippedError(t *testing.T) {
 // newGzipErrorHTTPServer returns a new server which always returns a gzipped 500 error
 func newGzipErrorHTTPServer() *httptest.Server {
 	handler := http.NewServeMux()
-	handler.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
+	handler.HandleFunc("/", func(rw http.ResponseWriter, _ *http.Request) {
 		rw.Header().Set(headers.ContentEncoding, "gzip")
 		rw.WriteHeader(http.StatusInternalServerError)
 

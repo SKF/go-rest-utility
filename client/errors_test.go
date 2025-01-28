@@ -13,7 +13,7 @@ import (
 )
 
 func TestClientGet_NotFoundError(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "a nice description on why teapots are bad")
 	}))

@@ -80,7 +80,7 @@ func TestCachedTokenProvider_AlwaysFailingProvider(t *testing.T) {
 
 	cached := auth.NewCachedTokenProvider(provider)
 
-	testProviderInParallel(t, cached, 10, func(token auth.RawToken, err error) {
+	testProviderInParallel(t, cached, 10, func(_ auth.RawToken, err error) {
 		require.ErrorIs(t, err, expectedError)
 	})
 
