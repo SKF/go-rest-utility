@@ -57,7 +57,7 @@ func TestClientGetWithCustomProblemDecoder(t *testing.T) {
 		Counter: 10,
 	}
 
-	var decoder ProblemDecoderFn = func(ctx context.Context, resp *http.Response) (problems.Problem, error) {
+	var decoder ProblemDecoderFn = func(_ context.Context, resp *http.Response) (problems.Problem, error) {
 		defer resp.Body.Close()
 
 		problem := CustomProblem{}

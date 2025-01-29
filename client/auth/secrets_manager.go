@@ -7,7 +7,6 @@ import (
 	"fmt"
 
 	sm_v2 "github.com/aws/aws-sdk-go-v2/service/secretsmanager"
-	sm_v1 "github.com/aws/aws-sdk-go/service/secretsmanager"
 
 	"github.com/SKF/go-rest-utility/client/retry"
 )
@@ -33,23 +32,8 @@ type SecretsClient interface {
 	GetSecretByID(context.Context, string) ([]byte, error)
 }
 
-type SecretsManagerV1Client struct {
-	*sm_v1.SecretsManager
-}
-
 type SecretsManagerV2Client struct {
 	*sm_v2.Client
-}
-
-func (c SecretsManagerV1Client) GetSecretByID(ctx context.Context, secretID string) ([]byte, error) {
-	output, err := c.GetSecretValueWithContext(ctx, &sm_v1.GetSecretValueInput{
-		SecretId: &secretID,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return output.SecretBinary, nil
 }
 
 func (c SecretsManagerV2Client) GetSecretByID(ctx context.Context, secretID string) ([]byte, error) {
