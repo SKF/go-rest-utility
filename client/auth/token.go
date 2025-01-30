@@ -21,7 +21,7 @@ type RawToken string
 // correctness of this value is not used for security.
 func (token RawToken) ParseExpires() (time.Time, error) {
 	parts := strings.Split(string(token), ".")
-	if len(parts) < 3 { //nolint:gomnd // A JWT should contain 3 parts divided by .
+	if len(parts) < 3 { //nolint: mnd // A JWT should contain 3 parts divided by .
 		return time.Time{}, fmt.Errorf("%w: missing parts, found %d should be 3", ErrInvalidToken, len(parts))
 	}
 

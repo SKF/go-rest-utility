@@ -42,8 +42,8 @@ func main() {
 		},
 		Retry: &retry.ExponentialJitterBackoff{
 			Base:        time.Second,
-			Cap:         5 * time.Second, //nolint:gomnd
-			MaxAttempts: 10,              //nolint:gomnd
+			Cap:         5 * time.Second, //nolint: mnd
+			MaxAttempts: 10,              //nolint: mnd
 		},
 	}
 

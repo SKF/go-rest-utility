@@ -142,7 +142,7 @@ func TestCredentialsTokenProvider_UnknownTokenType(t *testing.T) {
 func TestCredentialsTokenProvider_BadContentType(t *testing.T) {
 	t.Parallel()
 
-	sso := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	sso := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, `<xml></xml>`)
 	}))
@@ -166,9 +166,11 @@ func TestCredentialsTokenProvider_BadContentTypeWithRetries(t *testing.T) {
 
 	requestCount := 0
 
-	sso := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	sso := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
+
 		fmt.Fprint(w, `<xml></xml>`)
+
 		requestCount++
 	}))
 	defer sso.Close()

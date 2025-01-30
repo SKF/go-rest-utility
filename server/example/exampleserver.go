@@ -23,9 +23,9 @@ func main() {
 	httpServer := &http.Server{
 		Addr:           ":8080",
 		Handler:        &ochttp.Handler{Handler: router},
-		ReadTimeout:    30 * time.Second, //nolint:gomnd
-		WriteTimeout:   30 * time.Second, //nolint:gomnd
-		MaxHeaderBytes: 1 << 20,          //nolint:gomnd
+		ReadTimeout:    30 * time.Second, //nolint: mnd
+		WriteTimeout:   30 * time.Second, //nolint: mnd
+		MaxHeaderBytes: 1 << 20,          //nolint: mnd
 	}
 
 	sigs := make(chan os.Signal, 1)

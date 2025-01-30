@@ -11,7 +11,7 @@ var followRedirectsKey key
 
 func redirectHandler(req *http.Request, via []*http.Request) error {
 	// Default behavior from net/http
-	if len(via) >= 10 { //nolint:gomnd
+	if len(via) >= 10 { //nolint: mnd
 		return errors.New("stopped after 10 redirects")
 	}
 
