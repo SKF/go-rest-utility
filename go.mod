@@ -9,7 +9,7 @@ require (
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/gorilla/mux v1.8.1
 	github.com/jtacoma/uritemplates v1.0.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	go.opencensus.io v0.24.0
 	gopkg.in/DataDog/dd-trace-go.v1 v1.71.0
 )
