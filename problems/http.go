@@ -41,10 +41,13 @@ func WriteResponse(ctx context.Context, err error, w http.ResponseWriter, r *htt
 		WithField("problem", allProblemFields).
 		WithField("code", statusCode)
 
-	// Log as an Error if statusCode is 5XX, otherwise as Info.
-	if statusCode/100 == http.StatusInternalServerError/100 {
+	// Log as an Error if statusCode is 5XX, Warn if context was cancelled, otherwise Info.
+	switch {
+	case statusCode/100 == http.StatusInternalServerError/100:
 		l.Error(problem.ProblemTitle())
-	} else {
+	case ctx.Err() == context.Canceled:
+		l.Warn(problem.ProblemTitle())
+	default:
 		l.Info(problem.ProblemTitle())
 	}
 
